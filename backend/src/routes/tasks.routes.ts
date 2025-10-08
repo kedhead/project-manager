@@ -75,8 +75,17 @@ const updateTaskValidation = [
     .withMessage('Duration must be a positive integer'),
   body('progress')
     .optional()
-    .isInt({ min: 0, max: 100 })
-    .withMessage('Progress must be between 0 and 100'),
+    .isFloat({ min: 0 })
+    .withMessage('Progress must be a number')
+    .customSanitizer(value => {
+      const num = Number(value);
+      // If value is 0-1 (decimal), convert to 0-100
+      if (num >= 0 && num <= 1) return Math.round(num * 100);
+      // If value is already 0-100, round it
+      if (num > 1 && num <= 100) return Math.round(num);
+      // Otherwise clamp to 0-100
+      return Math.max(0, Math.min(100, Math.round(num)));
+    }),
   body('status')
     .optional()
     .isIn(['not_started', 'in_progress', 'completed', 'blocked', 'cancelled'])
