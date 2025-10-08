@@ -35,14 +35,14 @@ export class AuthService {
   static generateAccessToken(payload: TokenPayload): string {
     return jwt.sign(payload, config.jwt.secret, {
       expiresIn: config.jwt.expiresIn,
-    });
+    } as jwt.SignOptions);
   }
 
   // Generate JWT refresh token
   static generateRefreshToken(payload: TokenPayload): string {
     return jwt.sign(payload, config.jwt.refreshSecret, {
       expiresIn: config.jwt.refreshExpiresIn,
-    });
+    } as jwt.SignOptions);
   }
 
   // Verify access token

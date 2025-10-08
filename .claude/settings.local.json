@@ -4,7 +4,17 @@
       "Bash(dir:*)",
       "Bash(docker-compose up:*)",
       "Bash(docker compose:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nInitial commit - Complete Project Manager application with Gantt charts\n\nFull-featured project management application with:\n- Interactive DHTMLX Gantt chart with drag-and-drop\n- Task dependencies (4 types: FS, SS, FF, SF)\n- File uploads and attachments\n- Comments and activity tracking\n- Team collaboration with 4 role levels\n- Export to Excel, CSV, and PDF\n- JWT authentication with refresh tokens\n- Docker containerization ready\n- Complete testing suite (Jest + Vitest)\n- CI/CD pipeline with GitHub Actions\n\nTech stack: React + TypeScript + Vite, Node.js + Express, PostgreSQL 15\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(node -e \"console.log(''DB_PASSWORD='' + require(''crypto'').randomBytes(32).toString(''hex''))\")",
+      "Bash(node -e \"console.log(''JWT_SECRET='' + require(''crypto'').randomBytes(64).toString(''hex''))\")",
+      "Bash(node -e \"console.log(''JWT_REFRESH_SECRET='' + require(''crypto'').randomBytes(64).toString(''hex''))\")",
+      "Bash(git commit:*)",
+      "Bash(npm install)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

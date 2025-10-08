@@ -6,7 +6,7 @@ class ExportController {
   static async exportToExcel(req: Request, res: Response) {
     try {
       const projectId = parseInt(req.params.projectId);
-      const userId = req.user!.id;
+      const userId = req.user!.userId;
 
       const buffer = await ExportService.exportToExcel(projectId, userId);
 
@@ -26,7 +26,7 @@ class ExportController {
   static async exportToCSV(req: Request, res: Response) {
     try {
       const projectId = parseInt(req.params.projectId);
-      const userId = req.user!.id;
+      const userId = req.user!.userId;
 
       const csv = await ExportService.exportToCSV(projectId, userId);
 
@@ -46,7 +46,7 @@ class ExportController {
   static async exportToPDF(req: Request, res: Response) {
     try {
       const projectId = parseInt(req.params.projectId);
-      const userId = req.user!.id;
+      const userId = req.user!.userId;
 
       const buffer = await ExportService.exportToPDF(projectId, userId);
 

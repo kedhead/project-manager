@@ -257,7 +257,7 @@ export const ProjectView = () => {
               )}
             </div>
           </div>
-        ) : (
+        ) : viewMode === 'list' ? (
           <div className="bg-white rounded-lg shadow">
             <div className="p-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">Task List</h2>

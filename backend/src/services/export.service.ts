@@ -1,7 +1,7 @@
 import ExcelJS from 'exceljs';
 import { parse } from 'json2csv';
 import PDFDocument from 'pdfkit';
-import { pool } from '../config/database';
+import pool from '../config/database';
 
 class ExportService {
   // Get tasks with all details for export
@@ -121,9 +121,10 @@ class ExportService {
     });
 
     // Auto-size columns
-    worksheet.columns.forEach((column) => {
+    worksheet.columns?.forEach((column) => {
+      if (!column || !column.eachCell) return;
       let maxLength = 0;
-      column.eachCell({ includeEmpty: true }, (cell) => {
+      column.eachCell({ includeEmpty: true }, (cell: any) => {
         const columnLength = cell.value ? cell.value.toString().length : 10;
         if (columnLength > maxLength) {
           maxLength = columnLength;
@@ -139,7 +140,7 @@ class ExportService {
     };
 
     const buffer = await workbook.xlsx.writeBuffer();
-    return buffer as Buffer;
+    return buffer as any;
   }
 
   // Export to CSV
