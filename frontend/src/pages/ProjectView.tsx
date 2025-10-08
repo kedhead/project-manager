@@ -306,7 +306,7 @@ export const ProjectView = () => {
                           {task.status.replace('_', ' ').toUpperCase()}
                         </span>
                         <div className="text-sm font-medium text-gray-900">
-                          {Math.round(task.progress * 100)}%
+                          {Math.round(task.progress)}%
                         </div>
                       </div>
                     </div>

@@ -67,7 +67,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
       setStartDate(data.start_date ? data.start_date.split('T')[0] : '');
       setEndDate(data.end_date ? data.end_date.split('T')[0] : '');
       setDuration(data.duration || 1);
-      setProgress(Math.round(data.progress * 100));
+      setProgress(Math.round(data.progress));
       setStatus(data.status);
       setPriority(data.priority);
       setAssignedTo(data.assigned_to);
