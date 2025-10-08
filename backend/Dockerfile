@@ -33,8 +33,8 @@ RUN npm install --only=production && npm cache clean --force
 # Copy built files from builder
 COPY --from=builder /app/dist ./dist
 
-# Create uploads directory
-RUN mkdir -p uploads && chown -R node:node uploads
+# Create uploads directory and fix permissions
+RUN mkdir -p uploads && chown -R node:node uploads && chown -R node:node dist
 
 # Use non-root user
 USER node
