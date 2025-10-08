@@ -41,7 +41,7 @@ export interface CreateTaskData {
   startDate?: string;
   endDate?: string;
   duration?: number;
-  status?: 'todo' | 'in_progress' | 'completed' | 'blocked' | 'cancelled';
+  status?: 'not_started' | 'in_progress' | 'completed' | 'blocked' | 'cancelled';
   priority?: 'low' | 'medium' | 'high' | 'urgent';
   assignedTo?: number;
   parentTaskId?: number;
@@ -54,7 +54,7 @@ export interface UpdateTaskData {
   endDate?: string;
   duration?: number;
   progress?: number;
-  status?: 'todo' | 'in_progress' | 'completed' | 'blocked' | 'cancelled';
+  status?: 'not_started' | 'in_progress' | 'completed' | 'blocked' | 'cancelled';
   priority?: 'low' | 'medium' | 'high' | 'urgent';
   assignedTo?: number | null;
   parentTaskId?: number | null;
