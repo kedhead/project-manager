@@ -129,12 +129,17 @@ export const GanttChart: React.FC<GanttChartProps> = ({
     // Event handlers
     const onAfterTaskUpdate = async (id: string, task: any) => {
       try {
+        // Ensure progress is an integer 0-100
+        const progressValue = typeof task.progress === 'number'
+          ? Math.round(Math.max(0, Math.min(1, task.progress)) * 100)
+          : 0;
+
         await tasksApi.update(Number(id), {
           title: task.text,
           startDate: gantt.date.date_to_str('%Y-%m-%d')(task.start_date),
           endDate: gantt.date.date_to_str('%Y-%m-%d')(task.end_date),
           duration: task.duration,
-          progress: Math.round(task.progress * 100),
+          progress: progressValue,
           status: task.status,
           priority: task.priority,
           assignedTo: task.assigned_to || null,
@@ -238,7 +243,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({
         start_date: task.start_date ? gantt.date.parseDate(task.start_date, 'xml_date') : new Date(),
         end_date: task.end_date ? gantt.date.parseDate(task.end_date, 'xml_date') : null,
         duration: task.duration || 1,
-        progress: task.progress,
+        progress: task.progress / 100, // Convert from 0-100 to 0-1 for Gantt
         status: task.status,
         priority: task.priority,
         parent: task.parent_task_id?.toString() || 0,

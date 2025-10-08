@@ -14,7 +14,9 @@
       "Bash(node -e \"console.log(''JWT_REFRESH_SECRET='' + require(''crypto'').randomBytes(64).toString(''hex''))\")",
       "Bash(git commit:*)",
       "Bash(npm install)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(echo \"Run these commands on your VPS to diagnose:\n\n# Check if backend container is running\ndocker-compose ps\n\n# Check memory usage\ndocker stats --no-stream\n\n# Check backend logs\ndocker-compose logs backend --tail=100\n\n# Check system memory\nfree -h\n\n# Try to restart just the backend\ndocker-compose restart backend\")",
+      "Bash(echo \"Run these commands:\n\n# Check all containers status\ndocker-compose ps\n\n# Get backend logs (correct syntax)\ndocker-compose logs --tail=100 backend\n\n# If backend is stopped, try to start it and watch logs\ndocker-compose up -d backend && docker-compose logs -f backend\")"
     ],
     "deny": [],
     "ask": []
