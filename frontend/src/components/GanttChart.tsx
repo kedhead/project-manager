@@ -134,7 +134,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({
           startDate: gantt.date.date_to_str('%Y-%m-%d')(task.start_date),
           endDate: gantt.date.date_to_str('%Y-%m-%d')(task.end_date),
           duration: task.duration,
-          progress: task.progress,
+          progress: Math.round(task.progress * 100),
           status: task.status,
           priority: task.priority,
           assignedTo: task.assigned_to || null,
