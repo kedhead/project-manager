@@ -34,7 +34,7 @@ const createTaskValidation = [
     .withMessage('Duration must be a positive integer'),
   body('status')
     .optional()
-    .isIn(['todo', 'in_progress', 'completed', 'blocked', 'cancelled'])
+    .isIn(['not_started', 'in_progress', 'completed', 'blocked', 'cancelled'])
     .withMessage('Invalid task status'),
   body('priority')
     .optional()
@@ -79,7 +79,7 @@ const updateTaskValidation = [
     .withMessage('Progress must be between 0 and 100'),
   body('status')
     .optional()
-    .isIn(['todo', 'in_progress', 'completed', 'blocked', 'cancelled'])
+    .isIn(['not_started', 'in_progress', 'completed', 'blocked', 'cancelled'])
     .withMessage('Invalid task status'),
   body('priority')
     .optional()
