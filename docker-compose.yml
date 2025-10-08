@@ -52,8 +52,6 @@ services:
       UPLOADS_DIR: /app/uploads
     volumes:
       - uploads_data:/app/uploads
-      - ./backend:/app
-      - /app/node_modules
     ports:
       - "3000:3000"
     depends_on:
@@ -76,9 +74,6 @@ services:
         VITE_API_URL: ${VITE_API_URL:-http://localhost/api}
     container_name: pm_frontend
     restart: unless-stopped
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
     ports:
       - "5173:5173"
     depends_on:
