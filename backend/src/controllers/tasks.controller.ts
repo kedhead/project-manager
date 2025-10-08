@@ -100,6 +100,8 @@ export class TasksController {
   static updateTask = asyncHandler(async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('❌ Validation error for task update:', req.body);
+      console.log('❌ Validation errors:', errors.array());
       throw new AppError('Validation error: ' + errors.array().map(e => e.msg).join(', '), 400);
     }
 
