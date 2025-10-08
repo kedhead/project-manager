@@ -155,7 +155,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({
           startDate: gantt.date.date_to_str('%Y-%m-%d')(task.start_date),
           endDate: gantt.date.date_to_str('%Y-%m-%d')(task.end_date),
           duration: task.duration,
-          status: 'todo',
+          status: 'not_started',
           priority: 'medium',
           parentTaskId: task.parent || undefined
         });

@@ -9,7 +9,7 @@ export interface Task {
   end_date: string | null;
   duration: number | null;
   progress: number;
-  status: 'todo' | 'in_progress' | 'completed' | 'blocked' | 'cancelled';
+  status: 'not_started' | 'in_progress' | 'completed' | 'blocked' | 'cancelled';
   priority: 'low' | 'medium' | 'high' | 'urgent';
   assigned_to: number | null;
   created_by: number;

@@ -31,7 +31,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const [endDate, setEndDate] = useState('');
   const [duration, setDuration] = useState<number>(1);
   const [progress, setProgress] = useState<number>(0);
-  const [status, setStatus] = useState<'todo' | 'in_progress' | 'completed' | 'blocked' | 'cancelled'>('todo');
+  const [status, setStatus] = useState<'not_started' | 'in_progress' | 'completed' | 'blocked' | 'cancelled'>('not_started');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high' | 'urgent'>('medium');
   const [assignedTo, setAssignedTo] = useState<number | null>(null);
   const [members, setMembers] = useState<ProjectMember[]>([]);
@@ -107,7 +107,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
     setEndDate('');
     setDuration(1);
     setProgress(0);
-    setStatus('todo');
+    setStatus('not_started');
     setPriority('medium');
     setAssignedTo(null);
     setDependencies([]);
@@ -215,7 +215,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   if (!isOpen) return null;
 
   const statusColors = {
-    todo: 'bg-gray-100 text-gray-800',
+    not_started: 'bg-gray-100 text-gray-800',
     in_progress: 'bg-blue-100 text-blue-800',
     completed: 'bg-green-100 text-green-800',
     blocked: 'bg-red-100 text-red-800',
@@ -334,7 +334,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                 onChange={(e) => setStatus(e.target.value as any)}
                 className="input"
               >
-                <option value="todo">To Do</option>
+                <option value="not_started">Not Started</option>
                 <option value="in_progress">In Progress</option>
                 <option value="completed">Completed</option>
                 <option value="blocked">Blocked</option>
