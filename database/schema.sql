@@ -525,7 +525,7 @@ CREATE INDEX idx_sessions_token_hash ON sessions(token_hash) WHERE is_active = t
 CREATE INDEX idx_sessions_expires_at ON sessions(expires_at);
 CREATE INDEX idx_sessions_last_activity ON sessions(last_activity_at DESC);
 CREATE INDEX idx_sessions_active_users ON sessions(user_id, last_activity_at DESC)
-    WHERE is_active = true AND expires_at > CURRENT_TIMESTAMP;
+    WHERE is_active = true;
 
 COMMENT ON TABLE sessions IS 'Stores active user sessions for authentication and real-time collaboration.';
 COMMENT ON COLUMN sessions.token_hash IS 'Hashed session token (never store plain tokens)';
