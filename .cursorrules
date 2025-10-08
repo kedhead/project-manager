@@ -1,0 +1,50 @@
+PROJECT: Full-Stack Project Management System
+
+TECH STACK:
+- Frontend: React + Tailwind CSS
+- Backend: Node.js + Express (or specify your choice)
+- Database: PostgreSQL
+- Authentication: JWT
+
+RULES:
+1. Always write production-ready code with error handling
+2. Include comments for complex logic only
+3. Use consistent naming: camelCase for JS, snake_case for SQL
+4. Every feature needs: frontend component, API endpoint, database table/column
+5. Test database queries before implementing in routes
+6. No placeholder code - implement features completely
+7. Security first: validate inputs, sanitize data, use parameterized queries
+
+CODE STYLE:
+- Functional components with hooks (no class components)
+- Async/await over promises
+- Destructure props and imports
+- Keep files under 300 lines
+
+RESPONSE FORMAT:
+- Explain what you're building briefly
+- Show the code
+- List what files changed
+- Note any dependencies to install
+
+PRIORITIES (in order):
+1. Database schema and API first
+2. Core features before nice-to-haves
+3. Authentication and security
+4. Then polish and extras
+
+FEATURES TO BUILD:
+Phase 1: Foundation
+- Database setup, user auth, basic CRUD
+Phase 2: Core PM features
+- Tasks, projects, Gantt chart, assignments
+Phase 3: Collaboration
+- Comments, notifications, file uploads
+Phase 4: Polish
+- Export, reporting, advanced views
+AGENT MODE INSTRUCTIONS:
+- When asked to build a feature, implement it completely across all layers (DB, API, Frontend)
+- Always update related files, don't leave TODOs
+- After writing code, explain what was created and what to test
+- If you need to install dependencies, list them clearly
+- Create files in the right directory structure

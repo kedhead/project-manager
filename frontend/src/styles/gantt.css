@@ -1,0 +1,199 @@
+/* Custom Gantt Chart Styles */
+
+.gantt-container {
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+/* Task status colors */
+.gantt-task-todo .gantt_task_progress {
+  background-color: #9CA3AF !important;
+}
+
+.gantt-task-todo .gantt_task_line {
+  background-color: #D1D5DB !important;
+  border-color: #9CA3AF !important;
+}
+
+.gantt-task-in-progress .gantt_task_progress {
+  background-color: #2563EB !important;
+}
+
+.gantt-task-in-progress .gantt_task_line {
+  background-color: #60A5FA !important;
+  border-color: #2563EB !important;
+}
+
+.gantt-task-completed .gantt_task_progress {
+  background-color: #059669 !important;
+}
+
+.gantt-task-completed .gantt_task_line {
+  background-color: #34D399 !important;
+  border-color: #059669 !important;
+}
+
+.gantt-task-blocked .gantt_task_progress {
+  background-color: #DC2626 !important;
+}
+
+.gantt-task-blocked .gantt_task_line {
+  background-color: #F87171 !important;
+  border-color: #DC2626 !important;
+}
+
+.gantt-task-cancelled .gantt_task_progress {
+  background-color: #6B7280 !important;
+}
+
+.gantt-task-cancelled .gantt_task_line {
+  background-color: #9CA3AF !important;
+  border-color: #6B7280 !important;
+  opacity: 0.6;
+}
+
+/* Dependency link styles */
+.gantt-link-finish_to_start .gantt_line_wrapper div {
+  background-color: #3B82F6 !important;
+}
+
+.gantt-link-start_to_start .gantt_line_wrapper div {
+  background-color: #10B981 !important;
+}
+
+.gantt-link-finish_to_finish .gantt_line_wrapper div {
+  background-color: #F59E0B !important;
+}
+
+.gantt-link-start_to_finish .gantt_line_wrapper div {
+  background-color: #8B5CF6 !important;
+}
+
+/* Grid styling */
+.gantt_grid_scale {
+  background-color: #F9FAFB !important;
+  border-bottom: 2px solid #E5E7EB !important;
+}
+
+.gantt_task_scale {
+  background-color: #F9FAFB !important;
+  border-bottom: 2px solid #E5E7EB !important;
+}
+
+.gantt_grid_head_cell {
+  color: #374151 !important;
+  font-weight: 600 !important;
+  border-right: 1px solid #E5E7EB !important;
+}
+
+.gantt_grid_data .gantt_cell {
+  border-right: 1px solid #F3F4F6 !important;
+  border-bottom: 1px solid #F3F4F6 !important;
+}
+
+.gantt_row {
+  border-bottom: 1px solid #F3F4F6 !important;
+}
+
+.gantt_row.odd {
+  background-color: #FFFFFF !important;
+}
+
+.gantt_row.gantt_selected {
+  background-color: #EFF6FF !important;
+}
+
+.gantt_task_row.gantt_selected {
+  background-color: #EFF6FF !important;
+}
+
+/* Timeline styling */
+.gantt_task_scale .gantt_scale_cell {
+  color: #374151 !important;
+  font-weight: 500 !important;
+  border-right: 1px solid #E5E7EB !important;
+}
+
+.gantt_task .gantt_task_scale .gantt_scale_cell {
+  border-bottom: 1px solid #E5E7EB !important;
+}
+
+/* Today marker */
+.gantt_marker {
+  background-color: #EF4444 !important;
+  opacity: 0.3;
+}
+
+/* Scrollbar styling */
+.gantt_layout_cell::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.gantt_layout_cell::-webkit-scrollbar-track {
+  background: #F3F4F6;
+}
+
+.gantt_layout_cell::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 5px;
+}
+
+.gantt_layout_cell::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+/* Tooltip styling */
+.gantt_tooltip {
+  background-color: #1F2937 !important;
+  color: white !important;
+  border-radius: 6px !important;
+  padding: 12px !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  font-size: 13px !important;
+  max-width: 300px !important;
+}
+
+/* Task text styling */
+.gantt_task_content {
+  color: white !important;
+  font-weight: 500 !important;
+  font-size: 13px !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Progress drag handle */
+.gantt_task_progress_drag {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Link arrows */
+.gantt_link_arrow {
+  border-color: inherit !important;
+}
+
+/* Task drag handles */
+.gantt_link_control {
+  background-color: #3B82F6 !important;
+  border: 2px solid white !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+}
+
+.gantt_link_control:hover {
+  background-color: #2563EB !important;
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+  .gantt-container {
+    font-size: 12px;
+  }
+
+  .gantt_grid_scale,
+  .gantt_task_scale {
+    font-size: 11px;
+  }
+}
