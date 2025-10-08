@@ -7,7 +7,7 @@ export interface FileAttachment {
   file_name: string;
   file_path: string;
   file_size: number;
-  file_type: string;
+  mime_type: string;
   created_at: string;
   uploader_name: string;
   uploader_email: string;
