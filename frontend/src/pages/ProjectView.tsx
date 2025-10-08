@@ -96,7 +96,7 @@ export const ProjectView = () => {
   const calculateProjectProgress = () => {
     if (tasks.length === 0) return 0;
     const totalProgress = tasks.reduce((sum, task) => sum + task.progress, 0);
-    return Math.round((totalProgress / tasks.length) * 100);
+    return Math.round(totalProgress / tasks.length);
   };
 
   if (!project) {
