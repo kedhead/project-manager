@@ -142,7 +142,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({
           progress: progressValue,
           status: task.status,
           priority: task.priority,
-          assignedTo: task.assigned_to || null,
+          assignedTo: task.assigned_to ? Number(task.assigned_to) : null,
           parentTaskId: task.parent || null
         });
         if (onTaskUpdate) onTaskUpdate();
