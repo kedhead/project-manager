@@ -46,10 +46,10 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
 
   const filteredActivities = activities.filter(activity => {
     if (filter === 'all') return true;
-    return activity.action_type === filter;
+    return activity.action === filter;
   });
 
-  const actionTypes = Array.from(new Set(activities.map(a => a.action_type)));
+  const actionTypes = Array.from(new Set(activities.map(a => a.action)));
 
   return (
     <div className="space-y-4">

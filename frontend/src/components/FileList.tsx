@@ -90,7 +90,7 @@ export const FileList: React.FC<FileListProps> = ({
                 <span>•</span>
                 <span>{file.uploader_name}</span>
                 <span>•</span>
-                <span>{formatDistanceToNow(new Date(file.created_at), { addSuffix: true })}</span>
+                <span>{formatDistanceToNow(new Date(file.uploaded_at), { addSuffix: true })}</span>
               </div>
             </div>
           </div>

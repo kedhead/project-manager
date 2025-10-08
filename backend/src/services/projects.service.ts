@@ -298,9 +298,8 @@ export class ProjectsService {
         pm.user_id,
         pm.role,
         pm.joined_at,
-        u.email,
-        u.first_name,
-        u.last_name
+        u.email AS user_email,
+        CONCAT(u.first_name, ' ', u.last_name) AS user_name
        FROM project_members pm
        INNER JOIN users u ON pm.user_id = u.id
        WHERE pm.project_id = $1

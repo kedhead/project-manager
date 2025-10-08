@@ -9,6 +9,8 @@ export interface Comment {
   updated_at: string;
   user_name: string;
   user_email: string;
+  is_edited: boolean;
+  parent_comment_id: number | null;
 }
 
 export interface CreateCommentData {
@@ -23,7 +25,7 @@ export interface ActivityLog {
   id: number;
   project_id: number;
   user_id: number;
-  action_type: string;
+  action: string;
   entity_type: string;
   entity_id: number;
   details: any;

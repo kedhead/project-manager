@@ -52,11 +52,11 @@ export const ActivityItem: React.FC<ActivityItemProps> = ({ activity }) => {
   };
 
   const formatActivityMessage = () => {
-    const { action_type, entity_type, details, user_name } = activity;
+    const { action, entity_type, details, user_name } = activity;
 
     const userName = <span className="font-medium text-gray-900">{user_name}</span>;
 
-    if (action_type === 'created') {
+    if (action === 'created') {
       if (entity_type === 'task') {
         return (
           <>
@@ -98,7 +98,7 @@ export const ActivityItem: React.FC<ActivityItemProps> = ({ activity }) => {
       }
     }
 
-    if (action_type === 'updated') {
+    if (action === 'updated') {
       if (entity_type === 'task') {
         if (details?.field === 'status') {
           return (
@@ -136,7 +136,7 @@ export const ActivityItem: React.FC<ActivityItemProps> = ({ activity }) => {
       }
     }
 
-    if (action_type === 'deleted') {
+    if (action === 'deleted') {
       if (entity_type === 'task') {
         return <>{userName} deleted a task</>;
       }
@@ -156,7 +156,7 @@ export const ActivityItem: React.FC<ActivityItemProps> = ({ activity }) => {
       }
     }
 
-    if (action_type === 'assigned') {
+    if (action === 'assigned') {
       return (
         <>
           {userName} assigned task to{' '}
@@ -165,7 +165,7 @@ export const ActivityItem: React.FC<ActivityItemProps> = ({ activity }) => {
       );
     }
 
-    if (action_type === 'completed') {
+    if (action === 'completed') {
       return (
         <>
           {userName} completed task{' '}
@@ -176,15 +176,15 @@ export const ActivityItem: React.FC<ActivityItemProps> = ({ activity }) => {
 
     return (
       <>
-        {userName} {action_type} {entity_type}
+        {userName} {action} {entity_type}
       </>
     );
   };
 
   return (
     <div className="flex gap-3 py-3">
-      <div className={`p-2 rounded-full ${getActivityColor(activity.action_type)}`}>
-        {getActivityIcon(activity.action_type, activity.entity_type)}
+      <div className={`p-2 rounded-full ${getActivityColor(activity.action)}`}>
+        {getActivityIcon(activity.action, activity.entity_type)}
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm text-gray-700">{formatActivityMessage()}</p>

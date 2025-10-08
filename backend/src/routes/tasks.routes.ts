@@ -38,7 +38,7 @@ const createTaskValidation = [
     .withMessage('Invalid task status'),
   body('priority')
     .optional()
-    .isIn(['low', 'medium', 'high', 'urgent'])
+    .isIn(['low', 'medium', 'high', 'critical'])
     .withMessage('Invalid task priority'),
   body('assignedTo')
     .optional()
@@ -83,7 +83,7 @@ const updateTaskValidation = [
     .withMessage('Invalid task status'),
   body('priority')
     .optional()
-    .isIn(['low', 'medium', 'high', 'urgent'])
+    .isIn(['low', 'medium', 'high', 'critical'])
     .withMessage('Invalid task priority'),
   body('assignedTo')
     .optional()

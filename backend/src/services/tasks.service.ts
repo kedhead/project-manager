@@ -114,7 +114,7 @@ export class TasksService {
           data.startDate || null,
           data.endDate || null,
           data.duration || null,
-          data.status || 'todo',
+          data.status || 'not_started',
           data.priority || 'medium',
           data.assignedTo || null,
           userId,
@@ -708,12 +708,14 @@ export class TasksService {
         }
       }
 
-      // Log activity
-      await client.query(
-        `INSERT INTO activity_logs (project_id, user_id, entity_type, action, changes)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [projectId, userId, 'task', 'bulk_updated', JSON.stringify({ count: updates.length })]
-      );
+      // Log activity (use first task ID from updates as entity_id)
+      if (updates.length > 0) {
+        await client.query(
+          `INSERT INTO activity_logs (project_id, user_id, entity_type, entity_id, action, changes)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [projectId, userId, 'task', updates[0].id, 'updated', JSON.stringify({ count: updates.length })]
+        );
+      }
     });
   }
 }

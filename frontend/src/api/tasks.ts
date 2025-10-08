@@ -10,7 +10,7 @@ export interface Task {
   duration: number | null;
   progress: number;
   status: 'not_started' | 'in_progress' | 'completed' | 'blocked' | 'cancelled';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  priority: 'low' | 'medium' | 'high' | 'critical';
   assigned_to: number | null;
   created_by: number;
   parent_task_id: number | null;
@@ -42,7 +42,7 @@ export interface CreateTaskData {
   endDate?: string;
   duration?: number;
   status?: 'not_started' | 'in_progress' | 'completed' | 'blocked' | 'cancelled';
-  priority?: 'low' | 'medium' | 'high' | 'urgent';
+  priority?: 'low' | 'medium' | 'high' | 'critical';
   assignedTo?: number;
   parentTaskId?: number;
 }
@@ -55,7 +55,7 @@ export interface UpdateTaskData {
   duration?: number;
   progress?: number;
   status?: 'not_started' | 'in_progress' | 'completed' | 'blocked' | 'cancelled';
-  priority?: 'low' | 'medium' | 'high' | 'urgent';
+  priority?: 'low' | 'medium' | 'high' | 'critical';
   assignedTo?: number | null;
   parentTaskId?: number | null;
 }

@@ -32,7 +32,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const [duration, setDuration] = useState<number>(1);
   const [progress, setProgress] = useState<number>(0);
   const [status, setStatus] = useState<'not_started' | 'in_progress' | 'completed' | 'blocked' | 'cancelled'>('not_started');
-  const [priority, setPriority] = useState<'low' | 'medium' | 'high' | 'urgent'>('medium');
+  const [priority, setPriority] = useState<'low' | 'medium' | 'high' | 'critical'>('medium');
   const [assignedTo, setAssignedTo] = useState<number | null>(null);
   const [members, setMembers] = useState<ProjectMember[]>([]);
   const [dependencies, setDependencies] = useState<TaskDependency[]>([]);
@@ -226,7 +226,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
     low: 'bg-gray-100 text-gray-800',
     medium: 'bg-blue-100 text-blue-800',
     high: 'bg-orange-100 text-orange-800',
-    urgent: 'bg-red-100 text-red-800',
+    critical: 'bg-red-100 text-red-800',
   };
 
   return (
@@ -356,7 +356,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
                 <option value="high">High</option>
-                <option value="urgent">Urgent</option>
+                <option value="critical">Critical</option>
               </select>
             </div>
           </div>
