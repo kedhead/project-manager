@@ -47,6 +47,7 @@ export const MemberList: React.FC<MemberListProps> = ({
   };
 
   const getInitials = (name: string) => {
+    if (!name) return '??';
     return name
       .split(' ')
       .map(n => n[0])
@@ -79,7 +80,7 @@ export const MemberList: React.FC<MemberListProps> = ({
   };
 
   const handleRemove = async (member: ProjectMember) => {
-    if (!confirm(`Remove ${member.user_name} from this project?`)) return;
+    if (!confirm(`Remove ${member.user_name || 'this user'} from this project?`)) return;
 
     setRemovingMemberId(member.id);
     try {
@@ -125,12 +126,12 @@ export const MemberList: React.FC<MemberListProps> = ({
               {/* User Info */}
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-medium text-gray-900">{member.user_name}</h3>
+                  <h3 className="font-medium text-gray-900">{member.user_name || 'Unknown User'}</h3>
                   {member.user_id === currentUserId && (
                     <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">You</span>
                   )}
                 </div>
-                <p className="text-sm text-gray-600">{member.user_email}</p>
+                <p className="text-sm text-gray-600">{member.user_email || 'No email'}</p>
                 <p className="text-xs text-gray-500 mt-1">
                   Joined {formatDistanceToNow(new Date(member.joined_at), { addSuffix: true })}
                 </p>
