@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { X, Calendar, User, BarChart3, Flag, Link2, Trash2, Plus } from 'lucide-react';
+import { X, Calendar, User, BarChart3, Flag, Link2, Trash2, Plus, Users } from 'lucide-react';
 import { tasksApi, Task, CreateTaskData, UpdateTaskData, TaskDependency } from '../api/tasks';
 import { projectsApi, ProjectMember } from '../api/projects';
+import { groupsApi, Group } from '../api/groups';
 import { useAuth } from '../context/AuthContext';
 import CommentSection from './CommentSection';
 import FileSection from './FileSection';
@@ -34,7 +35,10 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const [status, setStatus] = useState<'not_started' | 'in_progress' | 'completed' | 'blocked' | 'cancelled'>('not_started');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high' | 'critical'>('medium');
   const [assignedTo, setAssignedTo] = useState<number | null>(null);
+  const [assignedGroupId, setAssignedGroupId] = useState<number | null>(null);
+  const [assignmentType, setAssignmentType] = useState<'person' | 'group' | 'none'>('none');
   const [members, setMembers] = useState<ProjectMember[]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
   const [dependencies, setDependencies] = useState<TaskDependency[]>([]);
   const [availableTasks, setAvailableTasks] = useState<Task[]>([]);
   const [showAddDependency, setShowAddDependency] = useState(false);
@@ -47,6 +51,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       loadMembers();
+      loadGroups();
       loadAvailableTasks();
       if (taskId) {
         loadTask();
@@ -71,6 +76,16 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
       setStatus(data.status);
       setPriority(data.priority);
       setAssignedTo(data.assigned_to);
+      setAssignedGroupId(data.assigned_group_id);
+
+      // Set assignment type based on what's assigned
+      if (data.assigned_to) {
+        setAssignmentType('person');
+      } else if (data.assigned_group_id) {
+        setAssignmentType('group');
+      } else {
+        setAssignmentType('none');
+      }
 
       const deps = await tasksApi.getDependencies(taskId);
       setDependencies(deps);
@@ -87,6 +102,15 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
       setMembers(data);
     } catch (error) {
       console.error('Failed to load members');
+    }
+  };
+
+  const loadGroups = async () => {
+    try {
+      const data = await groupsApi.list(projectId);
+      setGroups(data);
+    } catch (error) {
+      console.error('Failed to load groups');
     }
   };
 
@@ -110,6 +134,8 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
     setStatus('not_started');
     setPriority('medium');
     setAssignedTo(null);
+    setAssignedGroupId(null);
+    setAssignmentType('none');
     setDependencies([]);
   };
 
@@ -129,7 +155,8 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
           progress: progress / 100,
           status,
           priority,
-          assignedTo: assignedTo || null,
+          assignedTo: assignmentType === 'person' ? assignedTo : null,
+          assignedGroupId: assignmentType === 'group' ? assignedGroupId : null,
         };
         await tasksApi.update(taskId, updateData);
         toast.success('Task updated successfully');
@@ -143,7 +170,8 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
           duration,
           status,
           priority,
-          assignedTo: assignedTo || undefined,
+          assignedTo: assignmentType === 'person' ? assignedTo || undefined : undefined,
+          assignedGroupId: assignmentType === 'group' ? assignedGroupId || undefined : undefined,
           parentTaskId: parentTaskId || undefined,
         };
         await tasksApi.create(projectId, createData);
@@ -361,25 +389,92 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             </div>
           </div>
 
-          {/* Assigned To */}
+          {/* Assignment Type Selector */}
           <div>
-            <label htmlFor="assignedTo" className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
               <User size={16} />
-              Assign To
+              Assignment
             </label>
-            <select
-              id="assignedTo"
-              value={assignedTo || ''}
-              onChange={(e) => setAssignedTo(e.target.value ? Number(e.target.value) : null)}
-              className="input"
-            >
-              <option value="">Unassigned</option>
-              {members.map((member) => (
-                <option key={member.user_id} value={member.user_id}>
-                  {member.user_name} ({member.user_email})
-                </option>
-              ))}
-            </select>
+            <div className="flex gap-2 mb-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setAssignmentType('none');
+                  setAssignedTo(null);
+                  setAssignedGroupId(null);
+                }}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                  assignmentType === 'none'
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                Unassigned
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAssignmentType('person');
+                  setAssignedGroupId(null);
+                }}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                  assignmentType === 'person'
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                Person
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAssignmentType('group');
+                  setAssignedTo(null);
+                }}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                  assignmentType === 'group'
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                <span className="flex items-center gap-2 justify-center">
+                  <Users size={16} />
+                  Group
+                </span>
+              </button>
+            </div>
+
+            {/* Person Selector */}
+            {assignmentType === 'person' && (
+              <select
+                value={assignedTo || ''}
+                onChange={(e) => setAssignedTo(e.target.value ? Number(e.target.value) : null)}
+                className="input"
+              >
+                <option value="">Select a person...</option>
+                {members.map((member) => (
+                  <option key={member.user_id} value={member.user_id}>
+                    {member.user_name} ({member.user_email})
+                  </option>
+                ))}
+              </select>
+            )}
+
+            {/* Group Selector */}
+            {assignmentType === 'group' && (
+              <select
+                value={assignedGroupId || ''}
+                onChange={(e) => setAssignedGroupId(e.target.value ? Number(e.target.value) : null)}
+                className="input"
+              >
+                <option value="">Select a group...</option>
+                {groups.map((group) => (
+                  <option key={group.id} value={group.id}>
+                    {group.name} ({group.member_count} {group.member_count === 1 ? 'member' : 'members'})
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           {/* Progress (only for existing tasks) */}

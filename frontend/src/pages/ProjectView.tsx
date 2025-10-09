@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Plus, Users, Calendar, BarChart3 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { projectsApi, Project } from '../api/projects';
+import { projectsApi, Project, ProjectMember } from '../api/projects';
 import { tasksApi, Task } from '../api/tasks';
 import GanttChart from '../components/GanttChart';
 import TaskDetailModal from '../components/TaskDetailModal';
 import ActivityFeed from '../components/ActivityFeed';
 import ExportMenu from '../components/ExportMenu';
+import GroupsManagement from '../components/GroupsManagement';
 import toast from 'react-hot-toast';
 
 export const ProjectView = () => {
@@ -21,6 +22,8 @@ export const ProjectView = () => {
   const [viewMode, setViewMode] = useState<'gantt' | 'list' | 'activity'>('gantt');
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState<number | undefined>(undefined);
+  const [isGroupsModalOpen, setIsGroupsModalOpen] = useState(false);
+  const [members, setMembers] = useState<ProjectMember[]>([]);
 
   const loadProject = async () => {
     try {
@@ -46,9 +49,20 @@ export const ProjectView = () => {
     }
   };
 
+  const loadMembers = async () => {
+    try {
+      if (!id) return;
+      const data = await projectsApi.getMembers(Number(id));
+      setMembers(data);
+    } catch (error: any) {
+      console.error('Failed to load members');
+    }
+  };
+
   useEffect(() => {
     loadProject();
     loadTasks();
+    loadMembers();
   }, [id]);
 
   const handleTaskUpdate = () => {
@@ -165,14 +179,27 @@ export const ProjectView = () => {
               </div>
             </div>
 
-            <Link to={`/projects/${id}/members`} className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
-              <div className="flex items-center gap-2 text-gray-600 mb-1">
-                <Users size={16} />
-                <span className="text-sm font-medium">Team Members</span>
-              </div>
-              <div className="text-2xl font-bold text-gray-900">{project.member_count}</div>
-              <div className="text-xs text-primary-600 mt-1">View all →</div>
-            </Link>
+            <div className="flex gap-4">
+              <Link to={`/projects/${id}/members`} className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors flex-1">
+                <div className="flex items-center gap-2 text-gray-600 mb-1">
+                  <Users size={16} />
+                  <span className="text-sm font-medium">Team Members</span>
+                </div>
+                <div className="text-2xl font-bold text-gray-900">{project.member_count}</div>
+                <div className="text-xs text-primary-600 mt-1">View all →</div>
+              </Link>
+
+              <button
+                onClick={() => setIsGroupsModalOpen(true)}
+                className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors flex-1"
+              >
+                <div className="flex items-center gap-2 text-gray-600 mb-1">
+                  <Users size={16} />
+                  <span className="text-sm font-medium">Groups</span>
+                </div>
+                <div className="text-xs text-primary-600 mt-1">Manage →</div>
+              </button>
+            </div>
 
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="flex items-center gap-2 text-gray-600 mb-1">
@@ -285,7 +312,23 @@ export const ProjectView = () => {
                           <p className="text-sm text-gray-600 mt-1">{task.description}</p>
                         )}
                         <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
-                          <span>Assigned to: {task.assigned_user_name || 'Unassigned'}</span>
+                          <span>
+                            Assigned to: {task.assigned_user_name || task.assigned_group_name ? (
+                              task.assigned_group_name ? (
+                                <span className="inline-flex items-center gap-1">
+                                  <span
+                                    className="inline-block w-2 h-2 rounded-full"
+                                    style={{ backgroundColor: task.assigned_group_color || '#3B82F6' }}
+                                  />
+                                  {task.assigned_group_name} (Group)
+                                </span>
+                              ) : (
+                                task.assigned_user_name
+                              )
+                            ) : (
+                              'Unassigned'
+                            )}
+                          </span>
                           <span>•</span>
                           <span>
                             {task.start_date ? new Date(task.start_date).toLocaleDateString() : 'No start date'}
@@ -328,6 +371,15 @@ export const ProjectView = () => {
         projectId={Number(id)}
         taskId={editingTaskId}
       />
+
+      {/* Groups Management Modal */}
+      {isGroupsModalOpen && (
+        <GroupsManagement
+          projectId={Number(id)}
+          members={members}
+          onClose={() => setIsGroupsModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

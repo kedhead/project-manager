@@ -12,12 +12,15 @@ export interface Task {
   status: 'not_started' | 'in_progress' | 'completed' | 'blocked' | 'cancelled';
   priority: 'low' | 'medium' | 'high' | 'critical';
   assigned_to: number | null;
+  assigned_group_id: number | null;
   created_by: number;
   parent_task_id: number | null;
   created_at: string;
   updated_at: string;
   assigned_user_name: string | null;
   assigned_user_email: string | null;
+  assigned_group_name: string | null;
+  assigned_group_color: string | null;
   created_user_name: string;
   subtask_count: number;
   dependency_count: number;
@@ -44,6 +47,7 @@ export interface CreateTaskData {
   status?: 'not_started' | 'in_progress' | 'completed' | 'blocked' | 'cancelled';
   priority?: 'low' | 'medium' | 'high' | 'critical';
   assignedTo?: number;
+  assignedGroupId?: number;
   parentTaskId?: number;
 }
 
@@ -57,6 +61,7 @@ export interface UpdateTaskData {
   status?: 'not_started' | 'in_progress' | 'completed' | 'blocked' | 'cancelled';
   priority?: 'low' | 'medium' | 'high' | 'critical';
   assignedTo?: number | null;
+  assignedGroupId?: number | null;
   parentTaskId?: number | null;
 }
 
