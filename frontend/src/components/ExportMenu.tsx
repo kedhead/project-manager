@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download, FileSpreadsheet, FileText, File } from 'lucide-react';
+import { Download, FileSpreadsheet, FileText, File, Table } from 'lucide-react';
 import { exportApi } from '../api/export';
 import toast from 'react-hot-toast';
 
@@ -12,7 +12,7 @@ export const ExportMenu: React.FC<ExportMenuProps> = ({ projectId, projectName }
   const [isOpen, setIsOpen] = useState(false);
   const [exportingFormat, setExportingFormat] = useState<string | null>(null);
 
-  const handleExport = async (format: 'excel' | 'csv' | 'pdf') => {
+  const handleExport = async (format: 'excel' | 'csv' | 'pdf' | 'google-sheets') => {
     setExportingFormat(format);
     try {
       let blob: Blob;
@@ -31,15 +31,22 @@ export const ExportMenu: React.FC<ExportMenuProps> = ({ projectId, projectName }
           blob = await exportApi.exportToPDF(projectId);
           filename = `${projectName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_tasks.pdf`;
           break;
+        case 'google-sheets':
+          blob = await exportApi.exportToGoogleSheets(projectId);
+          filename = `${projectName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_tasks_google_sheets.xlsx`;
+          toast.success('Downloaded! Upload this file to Google Sheets to import.', { duration: 5000 });
+          break;
         default:
           throw new Error('Invalid format');
       }
 
       exportApi.downloadBlob(blob, filename);
-      toast.success(`Exported to ${format.toUpperCase()} successfully`);
+      if (format !== 'google-sheets') {
+        toast.success(`Exported to ${format.toUpperCase()} successfully`);
+      }
       setIsOpen(false);
     } catch (error: any) {
-      toast.error(`Failed to export to ${format.toUpperCase()}`);
+      toast.error(`Failed to export to ${format === 'google-sheets' ? 'Google Sheets' : format.toUpperCase()}`);
     } finally {
       setExportingFormat(null);
     }
@@ -72,6 +79,21 @@ export const ExportMenu: React.FC<ExportMenuProps> = ({ projectId, projectName }
             </div>
 
             <div className="p-2 space-y-1">
+              <button
+                onClick={() => handleExport('google-sheets')}
+                disabled={exportingFormat !== null}
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+              >
+                <Table size={18} className="text-emerald-600" />
+                <div className="flex-1 text-left">
+                  <div className="font-medium">Google Sheets</div>
+                  <div className="text-xs text-gray-500">Optimized for Google</div>
+                </div>
+                {exportingFormat === 'google-sheets' && (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-600"></div>
+                )}
+              </button>
+
               <button
                 onClick={() => handleExport('excel')}
                 disabled={exportingFormat !== null}

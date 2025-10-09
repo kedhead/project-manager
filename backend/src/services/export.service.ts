@@ -242,6 +242,147 @@ class ExportService {
       doc.end();
     });
   }
+
+  // Export to Google Sheets compatible format (optimized Excel)
+  static async exportToGoogleSheets(projectId: number, userId: number): Promise<Buffer> {
+    const tasks = await this.getTasksForExport(projectId, userId);
+    const project = await this.getProjectDetails(projectId);
+
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = 'Project Manager';
+    workbook.created = new Date();
+
+    const worksheet = workbook.addWorksheet('Tasks');
+
+    // Google Sheets optimized header
+    worksheet.mergeCells('A1:M1');
+    const titleCell = worksheet.getCell('A1');
+    titleCell.value = `${project.name} - Task Export`;
+    titleCell.font = { bold: true, size: 18, color: { argb: 'FF1A73E8' } }; // Google blue
+    titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+    titleCell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFF8F9FA' }, // Light gray
+    };
+
+    // Metadata row
+    worksheet.mergeCells('A2:M2');
+    const metaCell = worksheet.getCell('A2');
+    metaCell.value = `Status: ${project.status} | Tasks: ${tasks.length} | Exported: ${new Date().toLocaleString()}`;
+    metaCell.font = { size: 10, color: { argb: 'FF5F6368' } }; // Gray
+    metaCell.alignment = { horizontal: 'center' };
+
+    // Add spacing
+    worksheet.getRow(3).height = 5;
+
+    // Headers with Google Sheets style
+    const headers = [
+      'ID',
+      'Title',
+      'Description',
+      'Status',
+      'Priority',
+      'Assigned To',
+      'Email',
+      'Start Date',
+      'End Date',
+      'Duration',
+      'Progress',
+      'Subtasks',
+      'Dependencies',
+    ];
+
+    const headerRow = worksheet.addRow(headers);
+    headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } }; // White text
+    headerRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF1A73E8' }, // Google blue
+    };
+    headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
+    headerRow.height = 25;
+
+    // Add data with alternating row colors
+    tasks.forEach((task, index) => {
+      const row = worksheet.addRow([
+        task.id,
+        task.title,
+        task.description || '',
+        task.status,
+        task.priority,
+        task.assigned_user_name || 'Unassigned',
+        task.assigned_user_email || '',
+        task.start_date ? new Date(task.start_date).toLocaleDateString() : '',
+        task.end_date ? new Date(task.end_date).toLocaleDateString() : '',
+        task.duration || '',
+        Math.round(task.progress * 100),
+        task.subtask_count,
+        task.dependency_count,
+      ]);
+
+      // Alternating row colors (Google Sheets style)
+      if (index % 2 === 0) {
+        row.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFF8F9FA' }, // Very light gray
+        };
+      }
+
+      // Status color coding
+      const statusCell = row.getCell(4);
+      switch (task.status) {
+        case 'completed':
+          statusCell.font = { color: { argb: 'FF0F9D58' } }; // Green
+          break;
+        case 'in_progress':
+          statusCell.font = { color: { argb: 'FF1A73E8' } }; // Blue
+          break;
+        case 'blocked':
+          statusCell.font = { color: { argb: 'FFD93025' } }; // Red
+          break;
+      }
+
+      // Priority color coding
+      const priorityCell = row.getCell(5);
+      switch (task.priority) {
+        case 'critical':
+          priorityCell.font = { bold: true, color: { argb: 'FFD93025' } }; // Red
+          break;
+        case 'high':
+          priorityCell.font = { color: { argb: 'FFF4B400' } }; // Yellow/orange
+          break;
+      }
+    });
+
+    // Auto-size columns
+    worksheet.columns?.forEach((column, index) => {
+      if (!column || !column.eachCell) return;
+      let maxLength = headers[index]?.length || 10;
+      column.eachCell({ includeEmpty: false }, (cell: any) => {
+        const cellLength = cell.value ? cell.value.toString().length : 10;
+        if (cellLength > maxLength) {
+          maxLength = cellLength;
+        }
+      });
+      column.width = Math.min(maxLength + 3, 50);
+    });
+
+    // Add filters
+    worksheet.autoFilter = {
+      from: { row: 4, column: 1 },
+      to: { row: 4, column: headers.length },
+    };
+
+    // Freeze header rows
+    worksheet.views = [
+      { state: 'frozen', xSplit: 0, ySplit: 4 }
+    ];
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    return buffer as any;
+  }
 }
 
 export default ExportService;

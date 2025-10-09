@@ -25,6 +25,14 @@ export const exportApi = {
     return response.data;
   },
 
+  // Export project tasks to Google Sheets
+  exportToGoogleSheets: async (projectId: number): Promise<Blob> => {
+    const response = await api.get(`/projects/${projectId}/export/google-sheets`, {
+      responseType: 'blob',
+    });
+    return response.data;
+  },
+
   // Helper to download blob as file
   downloadBlob: (blob: Blob, filename: string) => {
     const url = window.URL.createObjectURL(blob);

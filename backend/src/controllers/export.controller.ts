@@ -61,6 +61,26 @@ class ExportController {
       });
     }
   }
+
+  // Export tasks to Google Sheets format (Excel that can be imported)
+  static async exportToGoogleSheets(req: Request, res: Response) {
+    try {
+      const projectId = parseInt(req.params.projectId);
+      const userId = req.user!.userId;
+
+      const buffer = await ExportService.exportToGoogleSheets(projectId, userId);
+
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename=project-${projectId}-tasks-google-sheets.xlsx`);
+      res.send(buffer);
+    } catch (error: any) {
+      console.error('Export to Google Sheets error:', error);
+      res.status(500).json({
+        success: false,
+        message: error.message || 'Failed to export for Google Sheets',
+      });
+    }
+  }
 }
 
 export default ExportController;
