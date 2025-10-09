@@ -330,74 +330,288 @@ class ExportService {
     return csv;
   }
 
-  // Export to PDF
+  // Export to PDF with modern design
   static async exportToPDF(projectId: number, userId: number): Promise<Buffer> {
     const tasks = await this.getTasksForExport(projectId, userId);
     const project = await this.getProjectDetails(projectId);
 
     return new Promise((resolve, reject) => {
-      const doc = new PDFDocument({ margin: 50 });
+      const doc = new PDFDocument({
+        margin: 50,
+        size: 'A4',
+        bufferPages: true,
+      });
       const buffers: Buffer[] = [];
 
       doc.on('data', buffers.push.bind(buffers));
       doc.on('end', () => resolve(Buffer.concat(buffers)));
       doc.on('error', reject);
 
-      // Header
-      doc.fontSize(20).text(project.name, { align: 'center' });
-      doc.moveDown();
-      doc.fontSize(12).text(`Status: ${project.status}`);
-      doc.text(`Exported: ${new Date().toLocaleString()}`);
-      doc.text(`Total Tasks: ${tasks.length}`);
+      // Modern color palette
+      const colors = {
+        primary: '#6366F1', // Indigo
+        success: '#10B981', // Green
+        warning: '#F59E0B', // Amber
+        danger: '#EF4444', // Red
+        info: '#3B82F6', // Blue
+        gray: '#6B7280',
+        lightGray: '#F3F4F6',
+        darkGray: '#374151',
+      };
+
+      // Calculate statistics
+      const stats = {
+        total: tasks.length,
+        completed: tasks.filter(t => t.status === 'completed').length,
+        inProgress: tasks.filter(t => t.status === 'in_progress').length,
+        blocked: tasks.filter(t => t.status === 'blocked').length,
+        avgProgress: tasks.length > 0
+          ? Math.round(tasks.reduce((sum, t) => sum + t.progress, 0) / tasks.length * 100)
+          : 0,
+        critical: tasks.filter(t => t.priority === 'critical').length,
+        high: tasks.filter(t => t.priority === 'high').length,
+      };
+
+      // Header with gradient-like effect
+      doc.rect(0, 0, doc.page.width, 120).fill(colors.primary);
+
+      doc.fillColor('white')
+        .fontSize(28)
+        .font('Helvetica-Bold')
+        .text(project.name, 50, 30, { align: 'center' });
+
+      doc.fontSize(12)
+        .font('Helvetica')
+        .text('Project Task Report', 50, 65, { align: 'center' });
+
+      doc.fontSize(10)
+        .text(`Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}`,
+          50, 85, { align: 'center' });
+
+      // Project status badge
+      doc.fontSize(10)
+        .font('Helvetica-Bold')
+        .text(`Status: ${project.status.toUpperCase()}`, 50, 100, { align: 'center' });
+
+      doc.moveDown(3);
+
+      // Summary Statistics Cards
+      const cardY = 140;
+      const cardWidth = 120;
+      const cardHeight = 70;
+      const cardSpacing = 15;
+      const startX = (doc.page.width - (cardWidth * 4 + cardSpacing * 3)) / 2;
+
+      // Total Tasks Card
+      doc.rect(startX, cardY, cardWidth, cardHeight)
+        .fillAndStroke(colors.lightGray, colors.gray)
+        .lineWidth(1);
+      doc.fillColor(colors.darkGray)
+        .fontSize(10)
+        .font('Helvetica')
+        .text('Total Tasks', startX, cardY + 10, { width: cardWidth, align: 'center' });
+      doc.fontSize(24)
+        .font('Helvetica-Bold')
+        .text(stats.total.toString(), startX, cardY + 30, { width: cardWidth, align: 'center' });
+
+      // Completed Card
+      doc.rect(startX + cardWidth + cardSpacing, cardY, cardWidth, cardHeight)
+        .fillAndStroke('#D1FAE5', colors.success)
+        .lineWidth(1);
+      doc.fillColor(colors.success)
+        .fontSize(10)
+        .font('Helvetica')
+        .text('Completed', startX + cardWidth + cardSpacing, cardY + 10, { width: cardWidth, align: 'center' });
+      doc.fontSize(24)
+        .font('Helvetica-Bold')
+        .text(stats.completed.toString(), startX + cardWidth + cardSpacing, cardY + 30, { width: cardWidth, align: 'center' });
+
+      // In Progress Card
+      doc.rect(startX + (cardWidth + cardSpacing) * 2, cardY, cardWidth, cardHeight)
+        .fillAndStroke('#DBEAFE', colors.info)
+        .lineWidth(1);
+      doc.fillColor(colors.info)
+        .fontSize(10)
+        .font('Helvetica')
+        .text('In Progress', startX + (cardWidth + cardSpacing) * 2, cardY + 10, { width: cardWidth, align: 'center' });
+      doc.fontSize(24)
+        .font('Helvetica-Bold')
+        .text(stats.inProgress.toString(), startX + (cardWidth + cardSpacing) * 2, cardY + 30, { width: cardWidth, align: 'center' });
+
+      // Avg Progress Card
+      doc.rect(startX + (cardWidth + cardSpacing) * 3, cardY, cardWidth, cardHeight)
+        .fillAndStroke(colors.lightGray, colors.gray)
+        .lineWidth(1);
+      doc.fillColor(colors.darkGray)
+        .fontSize(10)
+        .font('Helvetica')
+        .text('Avg Progress', startX + (cardWidth + cardSpacing) * 3, cardY + 10, { width: cardWidth, align: 'center' });
+      doc.fontSize(24)
+        .font('Helvetica-Bold')
+        .text(`${stats.avgProgress}%`, startX + (cardWidth + cardSpacing) * 3, cardY + 30, { width: cardWidth, align: 'center' });
+
+      doc.y = cardY + cardHeight + 30;
+
+      // Tasks section header
+      doc.fillColor(colors.darkGray)
+        .fontSize(18)
+        .font('Helvetica-Bold')
+        .text('Task Details', 50, doc.y);
+
+      doc.moveTo(50, doc.y + 5)
+        .lineTo(doc.page.width - 50, doc.y + 5)
+        .strokeColor(colors.primary)
+        .lineWidth(2)
+        .stroke();
+
       doc.moveDown(2);
 
-      // Tasks
+      // Tasks list
       tasks.forEach((task, index) => {
         // Check if we need a new page
-        if (doc.y > 700) {
+        if (doc.y > doc.page.height - 150) {
           doc.addPage();
+          doc.y = 50;
         }
 
-        doc.fontSize(14).text(`${index + 1}. ${task.title}`, { underline: true });
-        doc.fontSize(10);
-        doc.moveDown(0.5);
+        const taskY = doc.y;
 
+        // Task card background - skip drawing since height is dynamic
+
+        // Task number and title
+        doc.fillColor(colors.primary)
+          .fontSize(14)
+          .font('Helvetica-Bold')
+          .text(`${index + 1}. ${task.title}`, 60, taskY + 10, { width: doc.page.width - 120 });
+
+        doc.moveDown(0.3);
+
+        // Description
         if (task.description) {
-          doc.text(`Description: ${task.description}`, { width: 500 });
+          doc.fillColor(colors.darkGray)
+            .fontSize(9)
+            .font('Helvetica')
+            .text(task.description, 60, doc.y, { width: doc.page.width - 120 });
+          doc.moveDown(0.5);
         }
 
-        doc.text(`Status: ${task.status} | Priority: ${task.priority}`);
-        doc.text(`Assigned To: ${task.assigned_user_name || 'Unassigned'}`);
+        // Status and Priority badges
+        const badgeY = doc.y;
+        let statusColor = colors.gray;
+        switch (task.status) {
+          case 'completed': statusColor = colors.success; break;
+          case 'in_progress': statusColor = colors.info; break;
+          case 'blocked': statusColor = colors.danger; break;
+        }
+
+        doc.roundedRect(60, badgeY, 80, 16, 3)
+          .fillAndStroke(statusColor, statusColor)
+          .fillOpacity(0.2)
+          .fill();
+        doc.fillOpacity(1)
+          .fillColor(statusColor)
+          .fontSize(8)
+          .font('Helvetica-Bold')
+          .text(task.status.replace(/_/g, ' ').toUpperCase(), 60, badgeY + 4, { width: 80, align: 'center' });
+
+        let priorityColor = colors.gray;
+        switch (task.priority) {
+          case 'critical': priorityColor = colors.danger; break;
+          case 'high': priorityColor = colors.warning; break;
+          case 'medium': priorityColor = colors.info; break;
+        }
+
+        doc.roundedRect(145, badgeY, 70, 16, 3)
+          .fillAndStroke(priorityColor, priorityColor)
+          .fillOpacity(0.2)
+          .fill();
+        doc.fillOpacity(1)
+          .fillColor(priorityColor)
+          .fontSize(8)
+          .font('Helvetica-Bold')
+          .text(task.priority.toUpperCase(), 145, badgeY + 4, { width: 70, align: 'center' });
+
+        doc.y = badgeY + 20;
+
+        // Task details
+        doc.fillColor(colors.darkGray)
+          .fontSize(9)
+          .font('Helvetica');
+
+        const detailsY = doc.y;
+        doc.text(`Assigned: ${task.assigned_user_name || 'Unassigned'}`, 60, detailsY);
 
         if (task.start_date || task.end_date) {
-          const startDate = task.start_date ? new Date(task.start_date).toLocaleDateString() : 'Not set';
-          const endDate = task.end_date ? new Date(task.end_date).toLocaleDateString() : 'Not set';
-          doc.text(`Timeline: ${startDate} → ${endDate}`);
+          const start = task.start_date ? new Date(task.start_date).toLocaleDateString() : 'N/A';
+          const end = task.end_date ? new Date(task.end_date).toLocaleDateString() : 'N/A';
+          doc.text(`Timeline: ${start} → ${end}`, 60, detailsY + 12);
         }
 
-        if (task.duration) {
-          doc.text(`Duration: ${task.duration} days`);
+        // Progress bar
+        const progressY = doc.y + 12;
+        const progressBarWidth = 100;
+        const progressValue = Math.round(task.progress * 100);
+
+        doc.text(`Progress: ${progressValue}%`, 60, progressY);
+
+        // Progress bar background
+        doc.rect(160, progressY, progressBarWidth, 10)
+          .fillAndStroke(colors.lightGray, colors.gray)
+          .lineWidth(0.5);
+
+        // Progress bar fill
+        if (progressValue > 0) {
+          let progressColor = colors.danger;
+          if (progressValue >= 75) progressColor = colors.success;
+          else if (progressValue >= 50) progressColor = colors.info;
+          else if (progressValue >= 25) progressColor = colors.warning;
+
+          doc.rect(160, progressY, (progressBarWidth * progressValue) / 100, 10)
+            .fill(progressColor);
         }
 
-        doc.text(`Progress: ${Math.round(task.progress * 100)}%`);
+        doc.y = progressY + 15;
 
         if (task.subtask_count > 0 || task.dependency_count > 0) {
-          doc.text(`Subtasks: ${task.subtask_count} | Dependencies: ${task.dependency_count}`);
+          doc.fillColor(colors.gray)
+            .fontSize(8)
+            .text(`Subtasks: ${task.subtask_count} | Dependencies: ${task.dependency_count}`, 60, doc.y);
         }
 
         doc.moveDown(1.5);
       });
 
-      // Footer
+      // Add page numbers and footer
       const pages = doc.bufferedPageRange();
       for (let i = 0; i < pages.count; i++) {
         doc.switchToPage(i);
-        doc.fontSize(8).text(
-          `Page ${i + 1} of ${pages.count}`,
-          50,
-          doc.page.height - 50,
-          { align: 'center' }
-        );
+
+        // Footer line
+        doc.moveTo(50, doc.page.height - 70)
+          .lineTo(doc.page.width - 50, doc.page.height - 70)
+          .strokeColor(colors.lightGray)
+          .lineWidth(1)
+          .stroke();
+
+        // Page number
+        doc.fillColor(colors.gray)
+          .fontSize(9)
+          .font('Helvetica')
+          .text(
+            `Page ${i + 1} of ${pages.count}`,
+            50,
+            doc.page.height - 50,
+            { align: 'center', width: doc.page.width - 100 }
+          );
+
+        // Branding
+        doc.fontSize(8)
+          .text(
+            'Generated by Project Manager',
+            50,
+            doc.page.height - 35,
+            { align: 'center', width: doc.page.width - 100 }
+          );
       }
 
       doc.end();
