@@ -2,7 +2,17 @@
 
 echo "Running groups migration..."
 
-docker-compose exec -T db psql -U pmuser -d projectmanager <<'EOSQL'
+docker-compose exec -T db psql -U pmuser -d projectmanager < fix-migration.sql
+
+echo "Migration output shown above."
+echo ""
+echo "Checking if column was added..."
+docker-compose exec db psql -U pmuser -d projectmanager -c "SELECT column_name FROM information_schema.columns WHERE table_name = 'tasks' AND column_name = 'assigned_group_id';"
+
+exit 0
+
+# OLD APPROACH BELOW - KEEPING AS BACKUP
+docker-compose exec -T db psql -U pmuser -d projectmanager <<'EOSQL_BACKUP'
 -- Create groups table
 CREATE TABLE IF NOT EXISTS groups (
     id BIGSERIAL PRIMARY KEY,
