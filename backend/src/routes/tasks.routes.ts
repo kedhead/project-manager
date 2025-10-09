@@ -41,12 +41,12 @@ const createTaskValidation = [
     .isIn(['low', 'medium', 'high', 'critical'])
     .withMessage('Invalid task priority'),
   body('assignedTo')
-    .optional()
-    .isInt()
+    .optional({ nullable: true })
+    .custom((value) => value === null || value === undefined || Number.isInteger(Number(value)))
     .withMessage('Assigned user must be a valid user ID'),
   body('assignedGroupId')
-    .optional()
-    .isInt()
+    .optional({ nullable: true })
+    .custom((value) => value === null || value === undefined || Number.isInteger(Number(value)))
     .withMessage('Assigned group must be a valid group ID'),
   body('parentTaskId')
     .optional()
@@ -99,12 +99,12 @@ const updateTaskValidation = [
     .isIn(['low', 'medium', 'high', 'critical'])
     .withMessage('Invalid task priority'),
   body('assignedTo')
-    .optional()
-    .isInt()
+    .optional({ nullable: true })
+    .custom((value) => value === null || value === undefined || Number.isInteger(Number(value)))
     .withMessage('Assigned user must be a valid user ID'),
   body('assignedGroupId')
-    .optional()
-    .isInt()
+    .optional({ nullable: true })
+    .custom((value) => value === null || value === undefined || Number.isInteger(Number(value)))
     .withMessage('Assigned group must be a valid group ID'),
   body('parentTaskId')
     .optional()
