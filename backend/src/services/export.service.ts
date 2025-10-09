@@ -55,7 +55,7 @@ class ExportService {
     return result.rows[0];
   }
 
-  // Export to Excel
+  // Export to Excel with modern styling
   static async exportToExcel(projectId: number, userId: number): Promise<Buffer> {
     const tasks = await this.getTasksForExport(projectId, userId);
     const project = await this.getProjectDetails(projectId);
@@ -63,22 +63,57 @@ class ExportService {
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'Project Manager';
     workbook.created = new Date();
+    workbook.company = 'Project Manager App';
 
-    const worksheet = workbook.addWorksheet('Tasks');
+    const worksheet = workbook.addWorksheet('Tasks', {
+      properties: { tabColor: { argb: 'FF6366F1' } }, // Indigo tab
+    });
 
-    // Add project header
-    worksheet.mergeCells('A1:L1');
+    // Modern color palette
+    const colors = {
+      primary: 'FF6366F1', // Indigo
+      primaryLight: 'FFEDE9FE', // Light indigo
+      success: 'FF10B981', // Green
+      warning: 'FFF59E0B', // Amber
+      danger: 'FFEF4444', // Red
+      info: 'FF3B82F6', // Blue
+      gray: 'FF6B7280', // Gray
+      grayLight: 'FFF3F4F6', // Light gray
+    };
+
+    // Title Row - Modern branded header
+    worksheet.mergeCells('A1:M1');
     const titleCell = worksheet.getCell('A1');
-    titleCell.value = `Project: ${project.name}`;
-    titleCell.font = { bold: true, size: 16 };
-    titleCell.alignment = { horizontal: 'center' };
+    titleCell.value = `${project.name}`;
+    titleCell.font = { bold: true, size: 20, color: { argb: 'FFFFFFFF' } };
+    titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+    titleCell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: colors.primary },
+    };
+    titleCell.border = {
+      bottom: { style: 'thick', color: { argb: colors.primary } },
+    };
+    worksheet.getRow(1).height = 35;
 
-    // Add metadata
-    worksheet.getCell('A2').value = `Status: ${project.status}`;
-    worksheet.getCell('A3').value = `Exported: ${new Date().toLocaleString()}`;
-    worksheet.getCell('A4').value = `Total Tasks: ${tasks.length}`;
+    // Metadata Row with modern styling
+    worksheet.mergeCells('A2:M2');
+    const metaCell = worksheet.getCell('A2');
+    metaCell.value = `Status: ${project.status.toUpperCase()} │ Total Tasks: ${tasks.length} │ Exported: ${new Date().toLocaleString()}`;
+    metaCell.font = { size: 10, color: { argb: colors.gray }, italic: true };
+    metaCell.alignment = { horizontal: 'center', vertical: 'middle' };
+    metaCell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: colors.grayLight },
+    };
+    worksheet.getRow(2).height = 20;
 
-    // Add headers
+    // Spacing row
+    worksheet.getRow(3).height = 8;
+
+    // Headers with modern gradient-like styling
     const headers = [
       'ID',
       'Title',
@@ -86,31 +121,45 @@ class ExportService {
       'Status',
       'Priority',
       'Assigned To',
+      'Email',
       'Start Date',
       'End Date',
-      'Duration (days)',
-      'Progress (%)',
+      'Duration',
+      'Progress',
       'Subtasks',
       'Dependencies',
     ];
 
     const headerRow = worksheet.addRow(headers);
-    headerRow.font = { bold: true };
+    headerRow.font = { bold: true, size: 11, color: { argb: 'FFFFFFFF' } };
     headerRow.fill = {
       type: 'pattern',
       pattern: 'solid',
-      fgColor: { argb: 'FFE0E0E0' },
+      fgColor: { argb: colors.primary },
     };
+    headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
+    headerRow.height = 28;
 
-    // Add data
-    tasks.forEach((task) => {
-      worksheet.addRow([
+    // Add borders to header
+    headerRow.eachCell((cell) => {
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+        left: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+        bottom: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+        right: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+      };
+    });
+
+    // Add data with modern alternating row colors and conditional formatting
+    tasks.forEach((task, index) => {
+      const row = worksheet.addRow([
         task.id,
         task.title,
         task.description || '',
-        task.status,
-        task.priority,
+        task.status.replace(/_/g, ' ').toUpperCase(),
+        task.priority.toUpperCase(),
         task.assigned_user_name || 'Unassigned',
+        task.assigned_user_email || '',
         task.start_date ? new Date(task.start_date).toLocaleDateString() : '',
         task.end_date ? new Date(task.end_date).toLocaleDateString() : '',
         task.duration || '',
@@ -118,26 +167,138 @@ class ExportService {
         task.subtask_count,
         task.dependency_count,
       ]);
-    });
 
-    // Auto-size columns
-    worksheet.columns?.forEach((column) => {
-      if (!column || !column.eachCell) return;
-      let maxLength = 0;
-      column.eachCell({ includeEmpty: true }, (cell: any) => {
-        const columnLength = cell.value ? cell.value.toString().length : 10;
-        if (columnLength > maxLength) {
-          maxLength = columnLength;
-        }
+      // Alternating row colors
+      if (index % 2 === 1) {
+        row.eachCell((cell) => {
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: colors.grayLight },
+          };
+        });
+      }
+
+      // Status cell coloring
+      const statusCell = row.getCell(4);
+      statusCell.font = { bold: true };
+      switch (task.status) {
+        case 'completed':
+          statusCell.font = { ...statusCell.font, color: { argb: colors.success } };
+          statusCell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFD1FAE5' }, // Light green
+          };
+          break;
+        case 'in_progress':
+          statusCell.font = { ...statusCell.font, color: { argb: colors.info } };
+          statusCell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFDBEAFE' }, // Light blue
+          };
+          break;
+        case 'blocked':
+          statusCell.font = { ...statusCell.font, color: { argb: colors.danger } };
+          statusCell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFFECACA' }, // Light red
+          };
+          break;
+        case 'cancelled':
+          statusCell.font = { ...statusCell.font, color: { argb: colors.gray } };
+          break;
+      }
+
+      // Priority cell coloring
+      const priorityCell = row.getCell(5);
+      priorityCell.font = { bold: true };
+      switch (task.priority) {
+        case 'critical':
+          priorityCell.font = { ...priorityCell.font, color: { argb: colors.danger } };
+          priorityCell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFFECACA' }, // Light red
+          };
+          break;
+        case 'high':
+          priorityCell.font = { ...priorityCell.font, color: { argb: colors.warning } };
+          priorityCell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFFEF3C7' }, // Light amber
+          };
+          break;
+      }
+
+      // Progress bar visualization
+      const progressCell = row.getCell(11);
+      const progressValue = Math.round(task.progress * 100);
+      progressCell.value = `${progressValue}%`;
+      if (progressValue >= 75) {
+        progressCell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFD1FAE5' }, // Light green
+        };
+      } else if (progressValue >= 50) {
+        progressCell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFDBEAFE' }, // Light blue
+        };
+      } else if (progressValue >= 25) {
+        progressCell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFFEF3C7' }, // Light amber
+        };
+      }
+
+      // Add subtle borders
+      row.eachCell((cell) => {
+        cell.border = {
+          top: { style: 'hair', color: { argb: 'FFE5E7EB' } },
+          left: { style: 'hair', color: { argb: 'FFE5E7EB' } },
+          bottom: { style: 'hair', color: { argb: 'FFE5E7EB' } },
+          right: { style: 'hair', color: { argb: 'FFE5E7EB' } },
+        };
       });
-      column.width = Math.min(maxLength + 2, 50);
+
+      row.alignment = { vertical: 'middle' };
+      row.height = 22;
     });
 
-    // Add filters
+    // Auto-size columns with better spacing
+    worksheet.columns = [
+      { key: 'id', width: 8 },
+      { key: 'title', width: 30 },
+      { key: 'description', width: 40 },
+      { key: 'status', width: 15 },
+      { key: 'priority', width: 12 },
+      { key: 'assigned', width: 20 },
+      { key: 'email', width: 25 },
+      { key: 'start', width: 12 },
+      { key: 'end', width: 12 },
+      { key: 'duration', width: 10 },
+      { key: 'progress', width: 10 },
+      { key: 'subtasks', width: 10 },
+      { key: 'deps', width: 12 },
+    ];
+
+    // Add auto-filter
     worksheet.autoFilter = {
-      from: { row: 6, column: 1 },
-      to: { row: 6, column: headers.length },
+      from: { row: 4, column: 1 },
+      to: { row: 4, column: headers.length },
     };
+
+    // Freeze panes
+    worksheet.views = [
+      { state: 'frozen', xSplit: 0, ySplit: 4 }
+    ];
 
     const buffer = await workbook.xlsx.writeBuffer();
     return buffer as any;
