@@ -4,12 +4,12 @@ echo "Running groups migration..."
 echo ""
 
 # Copy SQL file into container and run it
-docker cp fix-migration.sql pm_db:/tmp/fix-migration.sql
-docker-compose exec -T db psql -U pmuser -d projectmanager -f /tmp/fix-migration.sql
+docker cp fix-migration.sql pm_postgres:/tmp/fix-migration.sql
+docker-compose exec -T postgres psql -U pm_user -d project_manager -f /tmp/fix-migration.sql
 
 echo ""
 echo "Checking if column was added..."
-docker-compose exec db psql -U pmuser -d projectmanager -c "SELECT column_name FROM information_schema.columns WHERE table_name = 'tasks' AND column_name = 'assigned_group_id';"
+docker-compose exec postgres psql -U pm_user -d project_manager -c "SELECT column_name FROM information_schema.columns WHERE table_name = 'tasks' AND column_name = 'assigned_group_id';"
 
 echo ""
 echo "Restarting backend..."
@@ -17,10 +17,7 @@ docker-compose restart backend
 
 echo ""
 echo "Done! Check if errors are gone:"
-echo "docker-compose logs --tail=20 backend"
-
-# OLD APPROACH BELOW - KEEPING AS BACKUP
-docker-compose exec -T db psql -U pmuser -d projectmanager <<'EOSQL_BACKUP'
+docker-compose logs --tail=20 backend
 -- Create groups table
 CREATE TABLE IF NOT EXISTS groups (
     id BIGSERIAL PRIMARY KEY,
