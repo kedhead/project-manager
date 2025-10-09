@@ -36,6 +36,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!newComment.trim()) return;
 
     setIsSubmitting(true);
