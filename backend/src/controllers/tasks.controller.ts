@@ -27,6 +27,7 @@ export class TasksController {
       status,
       priority,
       assignedTo,
+      assignedGroupId,
       parentTaskId,
     } = req.body;
 
@@ -39,6 +40,7 @@ export class TasksController {
       status,
       priority,
       assignedTo,
+      assignedGroupId,
       parentTaskId,
     });
 
@@ -122,6 +124,7 @@ export class TasksController {
       status,
       priority,
       assignedTo,
+      assignedGroupId,
       parentTaskId,
     } = req.body;
 
@@ -135,6 +138,7 @@ export class TasksController {
       status,
       priority,
       assignedTo,
+      assignedGroupId,
       parentTaskId,
     });
 

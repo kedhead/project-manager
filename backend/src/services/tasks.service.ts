@@ -51,6 +51,7 @@ export class TasksService {
       status?: string;
       priority?: string;
       assignedTo?: number;
+      assignedGroupId?: number;
       parentTaskId?: number;
     }
   ): Promise<TaskWithDetails> {
@@ -103,9 +104,9 @@ export class TasksService {
       const result = await client.query(
         `INSERT INTO tasks (
           project_id, title, description, start_date, end_date, duration,
-          status, priority, assigned_to, created_by, parent_task_id
+          status, priority, assigned_to, assigned_group_id, created_by, parent_task_id
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
         RETURNING *`,
         [
           projectId,
@@ -117,6 +118,7 @@ export class TasksService {
           data.status || 'not_started',
           data.priority || 'medium',
           data.assignedTo || null,
+          data.assignedGroupId || null,
           userId,
           data.parentTaskId || null,
         ]
@@ -164,11 +166,14 @@ export class TasksService {
         u1.first_name || ' ' || u1.last_name as assigned_user_name,
         u1.email as assigned_user_email,
         u2.first_name || ' ' || u2.last_name as created_user_name,
+        g.name as assigned_group_name,
+        g.color as assigned_group_color,
         COUNT(DISTINCT st.id) as subtask_count,
         COUNT(DISTINCT td.id) as dependency_count
       FROM tasks t
       LEFT JOIN users u1 ON t.assigned_to = u1.id
       INNER JOIN users u2 ON t.created_by = u2.id
+      LEFT JOIN groups g ON t.assigned_group_id = g.id AND g.deleted_at IS NULL
       LEFT JOIN tasks st ON st.parent_task_id = t.id AND st.deleted_at IS NULL
       LEFT JOIN task_dependencies td ON td.task_id = t.id
       WHERE t.project_id = $1 AND t.deleted_at IS NULL
@@ -217,7 +222,7 @@ export class TasksService {
     }
 
     queryText += `
-      GROUP BY t.id, u1.first_name, u1.last_name, u1.email, u2.first_name, u2.last_name
+      GROUP BY t.id, u1.first_name, u1.last_name, u1.email, u2.first_name, u2.last_name, g.name, g.color
       ORDER BY t.start_date ASC NULLS LAST, t.created_at DESC
     `;
 
@@ -233,16 +238,19 @@ export class TasksService {
         u1.first_name || ' ' || u1.last_name as assigned_user_name,
         u1.email as assigned_user_email,
         u2.first_name || ' ' || u2.last_name as created_user_name,
+        g.name as assigned_group_name,
+        g.color as assigned_group_color,
         COUNT(DISTINCT st.id) as subtask_count,
         COUNT(DISTINCT td.id) as dependency_count
        FROM tasks t
        LEFT JOIN users u1 ON t.assigned_to = u1.id
        INNER JOIN users u2 ON t.created_by = u2.id
+       LEFT JOIN groups g ON t.assigned_group_id = g.id AND g.deleted_at IS NULL
        LEFT JOIN tasks st ON st.parent_task_id = t.id AND st.deleted_at IS NULL
        LEFT JOIN task_dependencies td ON td.task_id = t.id
        INNER JOIN project_members pm ON t.project_id = pm.project_id
        WHERE t.id = $1 AND pm.user_id = $2 AND t.deleted_at IS NULL
-       GROUP BY t.id, u1.first_name, u1.last_name, u1.email, u2.first_name, u2.last_name`,
+       GROUP BY t.id, u1.first_name, u1.last_name, u1.email, u2.first_name, u2.last_name, g.name, g.color`,
       [taskId, userId]
     );
 
@@ -300,6 +308,7 @@ export class TasksService {
       status?: string;
       priority?: string;
       assignedTo?: number | null;
+      assignedGroupId?: number | null;
       parentTaskId?: number | null;
     }
   ): Promise<TaskWithDetails> {
@@ -419,6 +428,12 @@ export class TasksService {
       if (updates.assignedTo !== undefined) {
         updateFields.push(`assigned_to = $${paramIndex}`);
         values.push(updates.assignedTo);
+        paramIndex++;
+      }
+
+      if (updates.assignedGroupId !== undefined) {
+        updateFields.push(`assigned_group_id = $${paramIndex}`);
+        values.push(updates.assignedGroupId);
         paramIndex++;
       }
 

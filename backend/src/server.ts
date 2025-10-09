@@ -14,6 +14,7 @@ import projectsRoutes from './routes/projects.routes';
 import tasksRoutes from './routes/tasks.routes';
 import commentsRoutes from './routes/comments.routes';
 import filesRoutes from './routes/files.routes';
+import groupsRoutes from './routes/groups.routes';
 
 // Load environment variables
 dotenv.config();
@@ -75,6 +76,7 @@ app.get('/api', (req, res) => {
       tasks: '/api/tasks',
       comments: '/api/comments',
       files: '/api/files',
+      groups: '/api/groups',
       notifications: '/api/notifications',
     },
   });
@@ -89,6 +91,7 @@ app.use('/api/projects', projectsRoutes);
 app.use('/api', tasksRoutes);  // Tasks routes include both /projects/:id/tasks and /tasks/:id
 app.use('/api', commentsRoutes);  // Comments routes include /tasks/:id/comments, /comments/:id, and activity
 app.use('/api', filesRoutes);  // Files routes include /tasks/:id/files, /files/:id, and storage
+app.use('/api', groupsRoutes);  // Groups routes include /projects/:id/groups and /groups/:id
 app.use('/api', exportRoutes);  // Export routes include /projects/:id/export/*
 // TODO: Add remaining routes
 // app.use('/api/notifications', notificationRoutes);

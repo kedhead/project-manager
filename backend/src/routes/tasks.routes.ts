@@ -44,6 +44,10 @@ const createTaskValidation = [
     .optional()
     .isInt()
     .withMessage('Assigned user must be a valid user ID'),
+  body('assignedGroupId')
+    .optional()
+    .isInt()
+    .withMessage('Assigned group must be a valid group ID'),
   body('parentTaskId')
     .optional()
     .isInt()
@@ -98,6 +102,10 @@ const updateTaskValidation = [
     .optional()
     .isInt()
     .withMessage('Assigned user must be a valid user ID'),
+  body('assignedGroupId')
+    .optional()
+    .isInt()
+    .withMessage('Assigned group must be a valid group ID'),
   body('parentTaskId')
     .optional()
     .isInt()
