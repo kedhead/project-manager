@@ -34,9 +34,11 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (!newComment.trim()) return;
 
     setIsSubmitting(true);
@@ -86,17 +88,23 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
       </div>
 
       {/* New Comment Form */}
-      <form onSubmit={handleSubmit} className="space-y-2">
+      <div className="space-y-2">
         <textarea
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
           className="input text-sm"
           rows={3}
           placeholder="Add a comment..."
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+              handleSubmit();
+            }
+          }}
         />
         <div className="flex justify-end">
           <button
-            type="submit"
+            type="button"
+            onClick={() => handleSubmit()}
             disabled={isSubmitting || !newComment.trim()}
             className="btn btn-primary text-sm py-2 px-4 flex items-center gap-2"
           >
@@ -104,7 +112,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
             {isSubmitting ? 'Posting...' : 'Post Comment'}
           </button>
         </div>
-      </form>
+      </div>
 
       {/* Comments List */}
       <div className="space-y-4">
