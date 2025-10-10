@@ -75,6 +75,7 @@ export const tasksApi = {
     if (filters?.priority) params.append('priority', filters.priority);
 
     const response = await api.get(`/projects/${projectId}/tasks?${params.toString()}`);
+    console.log('Raw API response:', response.data.data.tasks);
     return response.data.data.tasks;
   },
 
