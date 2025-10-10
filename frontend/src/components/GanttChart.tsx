@@ -30,8 +30,8 @@ export const GanttChart: React.FC<GanttChartProps> = ({
       { unit: 'month', step: 1, date: '%F %Y' }
     ];
     gantt.config.min_column_width = 50;
-    gantt.config.scale_height = 60;
-    gantt.config.row_height = 40;
+    gantt.config.scale_height = 50;
+    gantt.config.row_height = 32;
     gantt.config.auto_scheduling = true;
     gantt.config.auto_scheduling_strict = true;
     gantt.config.drag_links = true;
@@ -41,35 +41,36 @@ export const GanttChart: React.FC<GanttChartProps> = ({
     gantt.config.details_on_dblclick = true;
     gantt.config.order_branch = true;
     gantt.config.order_branch_free = true;
+    gantt.config.fit_tasks = true; // Auto-fit timeline to tasks
 
-    // Configure columns
+    // Configure columns - optimized for space efficiency
     gantt.config.columns = [
       {
         name: 'text',
         label: 'Task name',
         tree: true,
-        width: 250,
+        width: 200,
         resize: true
       },
       {
         name: 'start_date',
         label: 'Start',
         align: 'center',
-        width: 100,
+        width: 85,
         resize: true
       },
       {
         name: 'duration',
-        label: 'Duration',
+        label: 'Days',
         align: 'center',
-        width: 80,
+        width: 50,
         resize: true
       },
       {
         name: 'status',
         label: 'Status',
         align: 'center',
-        width: 100,
+        width: 90,
         resize: true,
         template: (task: any) => {
           const statusColors: Record<string, string> = {
@@ -79,17 +80,29 @@ export const GanttChart: React.FC<GanttChartProps> = ({
             blocked: '#EF4444',
             cancelled: '#9CA3AF'
           };
+          const statusLabels: Record<string, string> = {
+            todo: 'TODO',
+            in_progress: 'IN PROG',
+            completed: 'DONE',
+            blocked: 'BLOCKED',
+            cancelled: 'CANCEL'
+          };
           const color = statusColors[task.status] || '#6B7280';
-          return `<span style="color: ${color}; font-weight: 600;">${task.status.replace('_', ' ').toUpperCase()}</span>`;
+          const label = statusLabels[task.status] || task.status.toUpperCase();
+          return `<span style="color: ${color}; font-weight: 600; font-size: 11px;">${label}</span>`;
         }
       },
       {
         name: 'assigned_user_name',
-        label: 'Assigned To',
-        align: 'center',
-        width: 120,
+        label: 'Assigned',
+        align: 'left',
+        width: 100,
         resize: true,
-        template: (task: any) => task.assigned_user_name || 'Unassigned'
+        template: (task: any) => {
+          const name = task.assigned_user_name || 'Unassigned';
+          // Show only first name if space is limited
+          return name === 'Unassigned' ? name : name.split(' ')[0];
+        }
       }
     ];
 
@@ -280,6 +293,26 @@ export const GanttChart: React.FC<GanttChartProps> = ({
         data: ganttTasks,
         links: ganttLinks
       });
+
+      // Auto-zoom to fit tasks with some padding
+      if (ganttTasks.length > 0) {
+        const dates = ganttTasks
+          .filter(t => t.start_date && t.end_date)
+          .flatMap(t => [t.start_date, t.end_date]);
+
+        if (dates.length > 0) {
+          const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
+          const maxDate = new Date(Math.max(...dates.map(d => d.getTime())));
+
+          // Add 1 week padding on each side
+          minDate.setDate(minDate.getDate() - 7);
+          maxDate.setDate(maxDate.getDate() + 7);
+
+          gantt.config.start_date = minDate;
+          gantt.config.end_date = maxDate;
+          gantt.render();
+        }
+      }
     } catch (error) {
       toast.error('Failed to load tasks');
     }
