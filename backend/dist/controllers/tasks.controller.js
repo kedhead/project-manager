@@ -93,7 +93,7 @@ TasksController.updateTask = (0, errorHandler_1.asyncHandler)(async (req, res) =
     if (isNaN(taskId)) {
         throw new errorHandler_1.AppError('Invalid task ID', 400);
     }
-    const { title, description, startDate, endDate, duration, progress, status, priority, assignedTo, assignedGroupId, parentTaskId, } = req.body;
+    const { title, description, startDate, endDate, duration, progress, status, priority, assignedTo, assignedGroupId, parentTaskId, color, } = req.body;
     const task = await tasks_service_1.TasksService.updateTask(taskId, userId, {
         title,
         description,
@@ -106,6 +106,7 @@ TasksController.updateTask = (0, errorHandler_1.asyncHandler)(async (req, res) =
         assignedTo,
         assignedGroupId,
         parentTaskId,
+        color,
     });
     res.status(200).json({
         status: 'success',

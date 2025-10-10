@@ -126,6 +126,7 @@ export class TasksController {
       assignedTo,
       assignedGroupId,
       parentTaskId,
+      color,
     } = req.body;
 
     const task = await TasksService.updateTask(taskId, userId, {
@@ -140,6 +141,7 @@ export class TasksController {
       assignedTo,
       assignedGroupId,
       parentTaskId,
+      color,
     });
 
     res.status(200).json({
