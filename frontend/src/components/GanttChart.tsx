@@ -145,23 +145,15 @@ export const GanttChart: React.FC<GanttChartProps> = ({
 
     // Configure task templates - use custom color or assign random colors
     gantt.templates.task_class = (start, end, task) => {
-      // If task has custom color, add a data attribute for CSS targeting
+      // If task has custom color, create a unique class for it
       if (task.color) {
-        return 'gantt-task-custom-color';
+        console.log('Task has color:', task.color, 'for task:', task.text);
+        return `gantt-task-custom-color gantt-task-id-${task.id}`;
       }
       const colors = ['blue', 'yellow', 'purple', 'pink', 'orange', 'cyan', 'green'];
       // Use task ID to consistently assign same color to same task
       const colorIndex = task.id ? parseInt(task.id.toString()) % colors.length : 0;
       return `gantt-task-color-${colors[colorIndex]}`;
-    };
-
-    // Apply custom color via inline style with higher specificity
-    gantt.templates.task_style = (start, end, task) => {
-      if (task.color) {
-        console.log('Applying color style:', task.color, 'to task:', task.text);
-        return `background: ${task.color} !important; border-color: ${task.color} !important; border-left-color: ${task.color} !important; border-right-color: ${task.color} !important;`;
-      }
-      return '';
     };
 
     // Timeline bar text - show task name with progress and assignee
@@ -334,6 +326,28 @@ export const GanttChart: React.FC<GanttChartProps> = ({
       });
 
       console.log('Gantt tasks with colors:', ganttTasks.filter(t => t.color));
+
+      // Inject CSS for custom colors
+      const styleId = 'gantt-custom-colors';
+      let styleEl = document.getElementById(styleId);
+      if (!styleEl) {
+        styleEl = document.createElement('style');
+        styleEl.id = styleId;
+        document.head.appendChild(styleEl);
+      }
+
+      const customColorCSS = ganttTasks
+        .filter(t => t.color)
+        .map(t => `
+          .gantt-task-id-${t.id} .gantt_task_line {
+            background: ${t.color} !important;
+            border-color: ${t.color} !important;
+          }
+        `)
+        .join('\n');
+
+      styleEl.textContent = customColorCSS;
+      console.log('Injected custom color CSS:', customColorCSS);
 
       // Transform dependencies to Gantt links
       const ganttLinks: any[] = [];
