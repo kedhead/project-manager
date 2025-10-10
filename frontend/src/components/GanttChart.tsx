@@ -388,6 +388,21 @@ export const GanttChart: React.FC<GanttChartProps> = ({
         links: ganttLinks
       });
 
+      // Apply custom colors directly to DOM after render
+      setTimeout(() => {
+        tasksWithColors.forEach(task => {
+          const taskElements = document.querySelectorAll(`.gantt-task-id-${task.id} .gantt_task_line`);
+          taskElements.forEach((el: any) => {
+            if (el && task.color) {
+              el.style.background = task.color;
+              el.style.backgroundImage = 'none';
+              el.style.borderColor = task.color;
+              console.log('Applied color directly to DOM for task:', task.id);
+            }
+          });
+        });
+      }, 100);
+
       // Auto-zoom to fit tasks with some padding
       if (ganttTasks.length > 0) {
         const dates = ganttTasks
