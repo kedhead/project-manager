@@ -15,6 +15,7 @@ interface Task {
   assigned_to: number | null;
   created_by: number;
   parent_task_id: number | null;
+  color: string | null;
   created_at: Date;
   updated_at: Date;
   completed_at: Date | null;
