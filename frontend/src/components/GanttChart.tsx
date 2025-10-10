@@ -133,16 +133,12 @@ export const GanttChart: React.FC<GanttChartProps> = ({
       }
     ];
 
-    // Configure task templates
+    // Configure task templates - assign random colors
     gantt.templates.task_class = (start, end, task) => {
-      const statusClasses: Record<string, string> = {
-        todo: 'gantt-task-todo',
-        in_progress: 'gantt-task-in-progress',
-        completed: 'gantt-task-completed',
-        blocked: 'gantt-task-blocked',
-        cancelled: 'gantt-task-cancelled'
-      };
-      return statusClasses[task.status] || '';
+      const colors = ['blue', 'yellow', 'purple', 'pink', 'orange', 'cyan', 'green'];
+      // Use task ID to consistently assign same color to same task
+      const colorIndex = task.id ? parseInt(task.id.toString()) % colors.length : 0;
+      return `gantt-task-color-${colors[colorIndex]}`;
     };
 
     // Timeline bar text - show task name with progress and assignee

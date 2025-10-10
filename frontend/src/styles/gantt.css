@@ -1,199 +1,295 @@
-/* Custom Gantt Chart Styles */
+/* Woodpecker-style Modern Gantt Chart */
 
 .gantt-container {
   width: 100%;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  background: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 
-/* Task status colors */
-.gantt-task-todo .gantt_task_progress {
-  background-color: #9CA3AF !important;
-}
+/* ===== GRID STYLING (LEFT PANEL) ===== */
 
-.gantt-task-todo .gantt_task_line {
-  background-color: #D1D5DB !important;
-  border-color: #9CA3AF !important;
-}
-
-.gantt-task-in-progress .gantt_task_progress {
-  background-color: #2563EB !important;
-}
-
-.gantt-task-in-progress .gantt_task_line {
-  background-color: #60A5FA !important;
-  border-color: #2563EB !important;
-}
-
-.gantt-task-completed .gantt_task_progress {
-  background-color: #059669 !important;
-}
-
-.gantt-task-completed .gantt_task_line {
-  background-color: #34D399 !important;
-  border-color: #059669 !important;
-}
-
-.gantt-task-blocked .gantt_task_progress {
-  background-color: #DC2626 !important;
-}
-
-.gantt-task-blocked .gantt_task_line {
-  background-color: #F87171 !important;
-  border-color: #DC2626 !important;
-}
-
-.gantt-task-cancelled .gantt_task_progress {
-  background-color: #6B7280 !important;
-}
-
-.gantt-task-cancelled .gantt_task_line {
-  background-color: #9CA3AF !important;
-  border-color: #6B7280 !important;
-  opacity: 0.6;
-}
-
-/* Dependency link styles */
-.gantt-link-finish_to_start .gantt_line_wrapper div {
-  background-color: #3B82F6 !important;
-}
-
-.gantt-link-start_to_start .gantt_line_wrapper div {
-  background-color: #10B981 !important;
-}
-
-.gantt-link-finish_to_finish .gantt_line_wrapper div {
-  background-color: #F59E0B !important;
-}
-
-.gantt-link-start_to_finish .gantt_line_wrapper div {
-  background-color: #8B5CF6 !important;
-}
-
-/* Grid styling */
+/* Grid header */
 .gantt_grid_scale {
-  background-color: #F9FAFB !important;
-  border-bottom: 2px solid #E5E7EB !important;
-}
-
-.gantt_task_scale {
-  background-color: #F9FAFB !important;
-  border-bottom: 2px solid #E5E7EB !important;
+  background-color: #FAFBFC !important;
+  border-bottom: 1px solid #E4E7EB !important;
+  height: 44px !important;
 }
 
 .gantt_grid_head_cell {
-  color: #374151 !important;
-  font-weight: 600 !important;
-  border-right: 1px solid #E5E7EB !important;
+  color: #6B7280 !important;
+  font-weight: 500 !important;
+  font-size: 13px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.025em !important;
+  border-right: 1px solid #E4E7EB !important;
+  padding: 12px 8px !important;
 }
 
+/* Grid rows */
+.gantt_grid_data .gantt_row {
+  background-color: #FFFFFF !important;
+  border-bottom: 1px solid #F0F1F3 !important;
+}
+
+.gantt_grid_data .gantt_row:hover {
+  background-color: #F9FAFB !important;
+}
+
+.gantt_grid_data .gantt_row.gantt_selected {
+  background-color: #EFF6FF !important;
+  border-left: 3px solid #6366F1 !important;
+}
+
+/* Grid cells */
 .gantt_grid_data .gantt_cell {
-  border-right: 1px solid #F3F4F6 !important;
-  border-bottom: 1px solid #F3F4F6 !important;
+  border-right: 1px solid #F0F1F3 !important;
+  padding: 8px !important;
+  font-size: 14px !important;
+  color: #1F2937 !important;
 }
 
-.gantt_row {
-  border-bottom: 1px solid #F3F4F6 !important;
+/* Tree column indentation */
+.gantt_tree_content {
+  font-weight: 400 !important;
 }
 
-.gantt_row.odd {
+/* Parent tasks (bold) */
+.gantt_tree_indent + .gantt_tree_icon + .gantt_tree_content {
+  font-weight: 500 !important;
+}
+
+/* ===== TASK BAR STYLING ===== */
+
+/* Base task bar - rounded corners and modern look */
+.gantt_task_line {
+  border-radius: 20px !important;
+  border: none !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+  height: 32px !important;
+  margin-top: 6px !important;
+}
+
+/* Hide default progress bar - we'll use solid colors */
+.gantt_task_progress {
+  display: none !important;
+}
+
+/* Colorful task bars - assign colors dynamically */
+.gantt_task_line {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+/* Task bar text - white, centered */
+.gantt_task_content {
+  color: #FFFFFF !important;
+  font-weight: 500 !important;
+  font-size: 13px !important;
+  padding: 0 12px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Task labels to the RIGHT of bars */
+.gantt_side_content {
+  color: #1F2937 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  padding-left: 12px !important;
+}
+
+.gantt_side_content.gantt_right {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+/* ===== TIMELINE STYLING ===== */
+
+/* Timeline header */
+.gantt_task_scale {
+  background-color: #FAFBFC !important;
+  border-bottom: 1px solid #E4E7EB !important;
+}
+
+.gantt_scale_line {
+  border-top: none !important;
+  border-bottom: 1px solid #E4E7EB !important;
+}
+
+.gantt_scale_cell {
+  color: #6B7280 !important;
+  font-weight: 500 !important;
+  font-size: 12px !important;
+  border-right: 1px solid #E4E7EB !important;
+  text-align: center !important;
+}
+
+/* Week headers - bold */
+.gantt_scale_cell.gantt_scale_cell_start {
+  font-weight: 600 !important;
+  color: #374151 !important;
+}
+
+/* Timeline grid */
+.gantt_task_bg {
   background-color: #FFFFFF !important;
 }
 
-.gantt_row.gantt_selected {
-  background-color: #EFF6FF !important;
+.gantt_task_row {
+  border-bottom: 1px solid #F0F1F3 !important;
 }
 
-.gantt_task_row.gantt_selected {
-  background-color: #EFF6FF !important;
+.gantt_task_cell {
+  border-right: 1px solid #F9FAFB !important;
 }
 
-/* Timeline styling */
-.gantt_task_scale .gantt_scale_cell {
-  color: #374151 !important;
-  font-weight: 500 !important;
-  border-right: 1px solid #E5E7EB !important;
+/* Today column highlight */
+.gantt_task_cell.gantt_task_cell_today {
+  background-color: #FEF3C7 !important;
 }
 
-.gantt_task .gantt_task_scale .gantt_scale_cell {
-  border-bottom: 1px solid #E5E7EB !important;
+/* ===== HIGHLIGHT ROWS (Yellow background like "Design Logo") ===== */
+.gantt_row.gantt_row_task_highlighted {
+  background-color: #FEF9C3 !important;
 }
 
-/* Today marker */
-.gantt_marker {
-  background-color: #EF4444 !important;
-  opacity: 0.3;
+.gantt_task_row.gantt_task_row_highlighted {
+  background-color: #FEF9C3 !important;
 }
 
-/* Scrollbar styling */
+/* ===== SPECIFIC TASK COLOR VARIATIONS ===== */
+
+/* Blue */
+.gantt-task-color-blue .gantt_task_line {
+  background: linear-gradient(135deg, #4F8FF8 0%, #3B6DD6 100%) !important;
+}
+
+/* Yellow */
+.gantt-task-color-yellow .gantt_task_line {
+  background: linear-gradient(135deg, #FDE047 0%, #FACC15 100%) !important;
+}
+
+.gantt-task-color-yellow .gantt_task_content {
+  color: #1F2937 !important;
+}
+
+/* Purple */
+.gantt-task-color-purple .gantt_task_line {
+  background: linear-gradient(135deg, #A78BFA 0%, #8B5CF6 100%) !important;
+}
+
+/* Pink */
+.gantt-task-color-pink .gantt_task_line {
+  background: linear-gradient(135deg, #F472B6 0%, #EC4899 100%) !important;
+}
+
+/* Orange */
+.gantt-task-color-orange .gantt_task_line {
+  background: linear-gradient(135deg, #FB923C 0%, #F97316 100%) !important;
+}
+
+/* Cyan */
+.gantt-task-color-cyan .gantt_task_line {
+  background: linear-gradient(135deg, #22D3EE 0%, #06B6D4 100%) !important;
+}
+
+/* Green */
+.gantt-task-color-green .gantt_task_line {
+  background: linear-gradient(135deg, #4ADE80 0%, #22C55E 100%) !important;
+}
+
+/* ===== DEPENDENCY LINKS ===== */
+
+.gantt_line_wrapper div {
+  background-color: #9CA3AF !important;
+}
+
+.gantt_link_arrow {
+  border-color: #9CA3AF !important;
+}
+
+/* ===== TOOLTIPS ===== */
+
+.gantt_tooltip {
+  background-color: #1F2937 !important;
+  color: #FFFFFF !important;
+  border-radius: 8px !important;
+  padding: 12px 16px !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2) !important;
+  font-size: 13px !important;
+  border: none !important;
+}
+
+/* ===== DRAG AND DROP ===== */
+
+.gantt_task_drag {
+  cursor: move !important;
+}
+
+.gantt_link_control {
+  background-color: #6366F1 !important;
+  border: 2px solid #FFFFFF !important;
+  border-radius: 50% !important;
+  width: 12px !important;
+  height: 12px !important;
+}
+
+.gantt_link_control:hover {
+  background-color: #4F46E5 !important;
+  transform: scale(1.2) !important;
+}
+
+/* ===== SCROLLBARS ===== */
+
 .gantt_layout_cell::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 
 .gantt_layout_cell::-webkit-scrollbar-track {
   background: #F3F4F6;
+  border-radius: 4px;
 }
 
 .gantt_layout_cell::-webkit-scrollbar-thumb {
   background: #D1D5DB;
-  border-radius: 5px;
+  border-radius: 4px;
 }
 
 .gantt_layout_cell::-webkit-scrollbar-thumb:hover {
   background: #9CA3AF;
 }
 
-/* Tooltip styling */
-.gantt_tooltip {
-  background-color: #1F2937 !important;
-  color: white !important;
-  border-radius: 6px !important;
-  padding: 12px !important;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
-  font-size: 13px !important;
-  max-width: 300px !important;
+/* ===== SELECTION STYLING ===== */
+
+.gantt_task_line.gantt_selected {
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3) !important;
 }
 
-/* Task text styling */
-.gantt_task_content {
-  color: white !important;
-  font-weight: 500 !important;
-  font-size: 13px !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+.gantt_task_line:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15) !important;
+  transform: translateY(-1px) !important;
+  transition: all 0.2s ease !important;
 }
 
-/* Progress drag handle */
-.gantt_task_progress_drag {
-  background-color: rgba(0, 0, 0, 0.3) !important;
+/* ===== MODERN FONTS ===== */
+
+.gantt_cal_light {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
 }
 
-/* Link arrows */
-.gantt_link_arrow {
-  border-color: inherit !important;
-}
+/* ===== RESPONSIVE ===== */
 
-/* Task drag handles */
-.gantt_link_control {
-  background-color: #3B82F6 !important;
-  border: 2px solid white !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
-}
-
-.gantt_link_control:hover {
-  background-color: #2563EB !important;
-}
-
-/* Responsiveness */
 @media (max-width: 768px) {
   .gantt-container {
     font-size: 12px;
   }
 
-  .gantt_grid_scale,
-  .gantt_task_scale {
-    font-size: 11px;
+  .gantt_task_line {
+    height: 28px !important;
   }
 }
