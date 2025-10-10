@@ -78,9 +78,9 @@
   font-weight: 700 !important;
 }
 
-/* Parent task bars - distinct styling */
-.gantt_task_row.gantt_task_row_project .gantt_task_line,
-.gantt_task_line.gantt_project {
+/* Parent task bars - distinct styling (but allow custom colors to override) */
+.gantt_task_row.gantt_task_row_project .gantt_task_line:not([style*="background"]),
+.gantt_task_line.gantt_project:not([style*="background"]) {
   font-weight: 600 !important;
   background: linear-gradient(135deg, #1E293B 0%, #334155 100%) !important;
   border: 2px solid #0F172A !important;
@@ -197,13 +197,18 @@
 
 /* ===== SPECIFIC TASK COLOR VARIATIONS ===== */
 
+/* Custom color tasks - let inline styles take precedence */
+.gantt-task-custom-color .gantt_task_line {
+  /* Inline styles will override */
+}
+
 /* Blue */
-.gantt-task-color-blue .gantt_task_line {
+.gantt-task-color-blue .gantt_task_line:not([style*="background"]) {
   background: linear-gradient(135deg, #4F8FF8 0%, #3B6DD6 100%) !important;
 }
 
 /* Yellow */
-.gantt-task-color-yellow .gantt_task_line {
+.gantt-task-color-yellow .gantt_task_line:not([style*="background"]) {
   background: linear-gradient(135deg, #FDE047 0%, #FACC15 100%) !important;
 }
 
@@ -212,27 +217,27 @@
 }
 
 /* Purple */
-.gantt-task-color-purple .gantt_task_line {
+.gantt-task-color-purple .gantt_task_line:not([style*="background"]) {
   background: linear-gradient(135deg, #A78BFA 0%, #8B5CF6 100%) !important;
 }
 
 /* Pink */
-.gantt-task-color-pink .gantt_task_line {
+.gantt-task-color-pink .gantt_task_line:not([style*="background"]) {
   background: linear-gradient(135deg, #F472B6 0%, #EC4899 100%) !important;
 }
 
 /* Orange */
-.gantt-task-color-orange .gantt_task_line {
+.gantt-task-color-orange .gantt_task_line:not([style*="background"]) {
   background: linear-gradient(135deg, #FB923C 0%, #F97316 100%) !important;
 }
 
 /* Cyan */
-.gantt-task-color-cyan .gantt_task_line {
+.gantt-task-color-cyan .gantt_task_line:not([style*="background"]) {
   background: linear-gradient(135deg, #22D3EE 0%, #06B6D4 100%) !important;
 }
 
 /* Green */
-.gantt-task-color-green .gantt_task_line {
+.gantt-task-color-green .gantt_task_line:not([style*="background"]) {
   background: linear-gradient(135deg, #4ADE80 0%, #22C55E 100%) !important;
 }
 

@@ -145,7 +145,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({
 
     // Configure task templates - use custom color or assign random colors
     gantt.templates.task_class = (start, end, task) => {
-      // If task has custom color, use inline style instead
+      // If task has custom color, add a data attribute for CSS targeting
       if (task.color) {
         return 'gantt-task-custom-color';
       }
@@ -155,10 +155,11 @@ export const GanttChart: React.FC<GanttChartProps> = ({
       return `gantt-task-color-${colors[colorIndex]}`;
     };
 
-    // Apply custom color via inline style
+    // Apply custom color via inline style with higher specificity
     gantt.templates.task_style = (start, end, task) => {
       if (task.color) {
-        return `background: ${task.color} !important; border-color: ${task.color} !important;`;
+        console.log('Applying color style:', task.color, 'to task:', task.text);
+        return `background: ${task.color} !important; border-color: ${task.color} !important; border-left-color: ${task.color} !important; border-right-color: ${task.color} !important;`;
       }
       return '';
     };
