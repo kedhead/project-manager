@@ -16,7 +16,18 @@
       "Bash(npm install)",
       "Bash(npm run build:*)",
       "Bash(echo \"Run these commands on your VPS to diagnose:\n\n# Check if backend container is running\ndocker-compose ps\n\n# Check memory usage\ndocker stats --no-stream\n\n# Check backend logs\ndocker-compose logs backend --tail=100\n\n# Check system memory\nfree -h\n\n# Try to restart just the backend\ndocker-compose restart backend\")",
-      "Bash(echo \"Run these commands:\n\n# Check all containers status\ndocker-compose ps\n\n# Get backend logs (correct syntax)\ndocker-compose logs --tail=100 backend\n\n# If backend is stopped, try to start it and watch logs\ndocker-compose up -d backend && docker-compose logs -f backend\")"
+      "Bash(echo \"Run these commands:\n\n# Check all containers status\ndocker-compose ps\n\n# Get backend logs (correct syntax)\ndocker-compose logs --tail=100 backend\n\n# If backend is stopped, try to start it and watch logs\ndocker-compose up -d backend && docker-compose logs -f backend\")",
+      "Bash(ssh:*)",
+      "Bash(scp:*)",
+      "Bash(git restore:*)",
+      "Bash(echo \"Run this command on your VPS to see the backend errors:\n\ndocker-compose logs --tail=50 backend\n\nThen paste the errors here so I can help fix them.\")",
+      "Bash(echo \"Run this on your VPS to see what entity types exist:\n\ndocker-compose exec postgres psql -U pm_user -d project_manager -c \"\"SELECT unnest(enum_range(NULL::entity_type));\"\"\n\nThen we''ll add ''group'' to that enum.\")",
+      "Bash(docker exec:*)",
+      "WebFetch(domain:www.teamgantt.com)",
+      "WebFetch(domain:dribbble.com)",
+      "Bash(curl -s \"https://dribbble.com/shots/10881653-Woodpecker-Gantt-Chart-and-Table-View-Hybrid-for-PM-SaaS\")",
+      "WebSearch",
+      "Bash(git revert:*)"
     ],
     "deny": [],
     "ask": []

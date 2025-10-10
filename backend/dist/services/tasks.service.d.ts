@@ -65,6 +65,7 @@ export declare class TasksService {
         assignedTo?: number | null;
         assignedGroupId?: number | null;
         parentTaskId?: number | null;
+        color?: string | null;
     }): Promise<TaskWithDetails>;
     static deleteTask(taskId: number, userId: number): Promise<void>;
     static addDependency(taskId: number, userId: number, dependsOnTaskId: number, dependencyType?: string, lagTime?: number): Promise<TaskDependency>;

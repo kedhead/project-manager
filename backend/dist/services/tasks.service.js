@@ -280,6 +280,11 @@ class TasksService {
                 values.push(updates.parentTaskId);
                 paramIndex++;
             }
+            if (updates.color !== undefined) {
+                updateFields.push(`color = $${paramIndex}`);
+                values.push(updates.color);
+                paramIndex++;
+            }
             if (updateFields.length === 0) {
                 throw new errorHandler_1.AppError('No fields to update', 400);
             }

@@ -39,6 +39,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const [assignedTo, setAssignedTo] = useState<number | null>(null);
   const [assignedGroupId, setAssignedGroupId] = useState<number | null>(null);
   const [assignmentType, setAssignmentType] = useState<'person' | 'group' | 'none'>('none');
+  const [color, setColor] = useState<string | null>(null);
   const [members, setMembers] = useState<ProjectMember[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
   const [dependencies, setDependencies] = useState<TaskDependency[]>([]);
@@ -91,6 +92,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
       setPriority(data.priority);
       setAssignedTo(data.assigned_to);
       setAssignedGroupId(data.assigned_group_id);
+      setColor(data.color);
 
       // Set assignment type based on what's assigned
       if (data.assigned_to) {
@@ -150,6 +152,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
     setAssignedTo(null);
     setAssignedGroupId(null);
     setAssignmentType('none');
+    setColor(null);
     setDependencies([]);
   };
 
@@ -171,6 +174,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
           priority,
           assignedTo: assignmentType === 'person' ? assignedTo : null,
           assignedGroupId: assignmentType === 'group' ? assignedGroupId : null,
+          color: color || null,
         };
         await tasksApi.update(taskId, updateData);
         toast.success('Task updated successfully');
@@ -402,6 +406,34 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                 <option value="high">High</option>
                 <option value="critical">Critical</option>
               </select>
+            </div>
+          </div>
+
+          {/* Bar Color Picker */}
+          <div>
+            <label htmlFor="color" className="block text-sm font-medium text-gray-700 mb-1">
+              Timeline Bar Color (optional)
+            </label>
+            <div className="flex gap-3 items-center">
+              <input
+                id="color"
+                type="color"
+                value={color || '#3B82F6'}
+                onChange={(e) => setColor(e.target.value)}
+                className="h-10 w-20 rounded border border-gray-300 cursor-pointer"
+              />
+              {color && (
+                <button
+                  type="button"
+                  onClick={() => setColor(null)}
+                  className="text-sm text-gray-600 hover:text-gray-800"
+                >
+                  Clear Color
+                </button>
+              )}
+              <span className="text-sm text-gray-500">
+                {color ? color : 'Auto (random color)'}
+              </span>
             </div>
           </div>
 

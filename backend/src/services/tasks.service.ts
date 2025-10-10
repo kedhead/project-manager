@@ -310,6 +310,7 @@ export class TasksService {
       assignedTo?: number | null;
       assignedGroupId?: number | null;
       parentTaskId?: number | null;
+      color?: string | null;
     }
   ): Promise<TaskWithDetails> {
     return transaction(async (client) => {
@@ -440,6 +441,12 @@ export class TasksService {
       if (updates.parentTaskId !== undefined) {
         updateFields.push(`parent_task_id = $${paramIndex}`);
         values.push(updates.parentTaskId);
+        paramIndex++;
+      }
+
+      if (updates.color !== undefined) {
+        updateFields.push(`color = $${paramIndex}`);
+        values.push(updates.color);
         paramIndex++;
       }
 
