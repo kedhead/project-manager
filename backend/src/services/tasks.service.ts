@@ -223,7 +223,7 @@ export class TasksService {
     }
 
     queryText += `
-      GROUP BY t.id, u1.first_name, u1.last_name, u1.email, u2.first_name, u2.last_name, g.name, g.color
+      GROUP BY t.id
       ORDER BY t.start_date ASC NULLS LAST, t.created_at DESC
     `;
 
