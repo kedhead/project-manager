@@ -4,7 +4,7 @@ import PDFDocument from 'pdfkit';
 import pool from '../config/database';
 
 class ExportService {
-  // Get tasks with all details for export
+  // Get tasks with all details for export (including groups)
   static async getTasksForExport(projectId: number, userId: number) {
     const query = `
       SELECT
@@ -21,12 +21,15 @@ class ExportService {
         t.updated_at,
         CONCAT(assigned_user.first_name, ' ', assigned_user.last_name) as assigned_user_name,
         assigned_user.email as assigned_user_email,
+        g.name as assigned_group_name,
+        g.color as assigned_group_color,
         CONCAT(creator.first_name, ' ', creator.last_name) as created_user_name,
-        (SELECT COUNT(*) FROM tasks subtasks WHERE subtasks.parent_task_id = t.id) as subtask_count,
+        (SELECT COUNT(*) FROM tasks subtasks WHERE subtasks.parent_task_id = t.id AND subtasks.deleted_at IS NULL) as subtask_count,
         (SELECT COUNT(*) FROM task_dependencies WHERE task_id = t.id) as dependency_count
       FROM tasks t
       LEFT JOIN users assigned_user ON t.assigned_to = assigned_user.id
       LEFT JOIN users creator ON t.created_by = creator.id
+      LEFT JOIN groups g ON t.assigned_group_id = g.id AND g.deleted_at IS NULL
       WHERE t.project_id = $1 AND t.deleted_at IS NULL
       ORDER BY t.created_at ASC
     `;
@@ -152,13 +155,17 @@ class ExportService {
 
     // Add data with modern alternating row colors and conditional formatting
     tasks.forEach((task, index) => {
+      const assignedTo = task.assigned_group_name
+        ? `${task.assigned_group_name} (Group)`
+        : (task.assigned_user_name || 'Unassigned');
+
       const row = worksheet.addRow([
         task.id,
         task.title,
         task.description || '',
         task.status.replace(/_/g, ' ').toUpperCase(),
         task.priority.toUpperCase(),
-        task.assigned_user_name || 'Unassigned',
+        assignedTo,
         task.assigned_user_email || '',
         task.start_date ? new Date(task.start_date).toLocaleDateString() : '',
         task.end_date ? new Date(task.end_date).toLocaleDateString() : '',
@@ -314,7 +321,12 @@ class ExportService {
       { label: 'Description', value: 'description' },
       { label: 'Status', value: 'status' },
       { label: 'Priority', value: 'priority' },
-      { label: 'Assigned To', value: 'assigned_user_name' },
+      {
+        label: 'Assigned To',
+        value: (row: any) => row.assigned_group_name
+          ? `${row.assigned_group_name} (Group)`
+          : (row.assigned_user_name || 'Unassigned')
+      },
       { label: 'Assigned Email', value: 'assigned_user_email' },
       { label: 'Start Date', value: (row: any) => row.start_date ? new Date(row.start_date).toLocaleDateString() : '' },
       { label: 'End Date', value: (row: any) => row.end_date ? new Date(row.end_date).toLocaleDateString() : '' },
@@ -539,7 +551,10 @@ class ExportService {
           .font('Helvetica');
 
         const detailsY = doc.y;
-        doc.text(`Assigned: ${task.assigned_user_name || 'Unassigned'}`, 60, detailsY);
+        const assignedTo = task.assigned_group_name
+          ? `${task.assigned_group_name} (Group)`
+          : (task.assigned_user_name || 'Unassigned');
+        doc.text(`Assigned: ${assignedTo}`, 60, detailsY);
 
         if (task.start_date || task.end_date) {
           const start = task.start_date ? new Date(task.start_date).toLocaleDateString() : 'N/A';
@@ -680,13 +695,17 @@ class ExportService {
 
     // Add data with alternating row colors
     tasks.forEach((task, index) => {
+      const assignedTo = task.assigned_group_name
+        ? `${task.assigned_group_name} (Group)`
+        : (task.assigned_user_name || 'Unassigned');
+
       const row = worksheet.addRow([
         task.id,
         task.title,
         task.description || '',
         task.status,
         task.priority,
-        task.assigned_user_name || 'Unassigned',
+        assignedTo,
         task.assigned_user_email || '',
         task.start_date ? new Date(task.start_date).toLocaleDateString() : '',
         task.end_date ? new Date(task.end_date).toLocaleDateString() : '',
