@@ -49,8 +49,8 @@ const createTaskValidation = [
     .custom((value) => value === null || value === undefined || Number.isInteger(Number(value)))
     .withMessage('Assigned group must be a valid group ID'),
   body('parentTaskId')
-    .optional()
-    .isInt()
+    .optional({ nullable: true })
+    .custom((value) => value === null || value === undefined || Number.isInteger(Number(value)))
     .withMessage('Parent task must be a valid task ID'),
 ];
 
@@ -107,8 +107,8 @@ const updateTaskValidation = [
     .custom((value) => value === null || value === undefined || Number.isInteger(Number(value)))
     .withMessage('Assigned group must be a valid group ID'),
   body('parentTaskId')
-    .optional()
-    .isInt()
+    .optional({ nullable: true })
+    .custom((value) => value === null || value === undefined || Number.isInteger(Number(value)))
     .withMessage('Parent task must be a valid task ID'),
 ];
 
