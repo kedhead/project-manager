@@ -15,6 +15,7 @@ export interface Task {
   assigned_group_id: number | null;
   created_by: number;
   parent_task_id: number | null;
+  color: string | null;
   created_at: string;
   updated_at: string;
   assigned_user_name: string | null;
@@ -63,6 +64,7 @@ export interface UpdateTaskData {
   assignedTo?: number | null;
   assignedGroupId?: number | null;
   parentTaskId?: number | null;
+  color?: string | null;
 }
 
 export const tasksApi = {

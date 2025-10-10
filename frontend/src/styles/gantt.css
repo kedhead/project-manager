@@ -78,12 +78,20 @@
   font-weight: 700 !important;
 }
 
-/* Parent task bars - slightly taller */
-.gantt_task_row.gantt_task_row_project .gantt_task_line {
+/* Parent task bars - distinct styling */
+.gantt_task_row.gantt_task_row_project .gantt_task_line,
+.gantt_task_line.gantt_project {
   font-weight: 600 !important;
+  background: linear-gradient(135deg, #1E293B 0%, #334155 100%) !important;
+  border: 2px solid #0F172A !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15) !important;
+  height: 36px !important;
+  margin-top: 4px !important;
 }
 
-.gantt_task_line.gantt_project {
+/* Parent task bar content - white text for visibility */
+.gantt_task_line.gantt_project .gantt_task_content {
+  color: #FFFFFF !important;
   font-weight: 600 !important;
 }
 

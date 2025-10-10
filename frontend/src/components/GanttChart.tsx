@@ -143,12 +143,24 @@ export const GanttChart: React.FC<GanttChartProps> = ({
       }
     ];
 
-    // Configure task templates - assign random colors
+    // Configure task templates - use custom color or assign random colors
     gantt.templates.task_class = (start, end, task) => {
+      // If task has custom color, use inline style instead
+      if (task.color) {
+        return 'gantt-task-custom-color';
+      }
       const colors = ['blue', 'yellow', 'purple', 'pink', 'orange', 'cyan', 'green'];
       // Use task ID to consistently assign same color to same task
       const colorIndex = task.id ? parseInt(task.id.toString()) % colors.length : 0;
       return `gantt-task-color-${colors[colorIndex]}`;
+    };
+
+    // Apply custom color via inline style
+    gantt.templates.task_style = (start, end, task) => {
+      if (task.color && task.type !== 'project') {
+        return `background: ${task.color} !important; border-color: ${task.color} !important;`;
+      }
+      return '';
     };
 
     // Timeline bar text - show task name with progress and assignee
@@ -313,6 +325,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({
           assigned_to: task.assigned_to,
           assigned_user_name: task.assigned_user_name,
           assigned_user_email: task.assigned_user_email,
+          color: task.color,
           open: true,
           type: hasChildren ? 'project' : 'task'
         };
