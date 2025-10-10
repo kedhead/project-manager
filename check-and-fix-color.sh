@@ -44,7 +44,7 @@ sleep 5
 echo ""
 
 echo "Step 8: Checking backend logs..."
-docker-compose logs backend --tail=20
+docker-compose logs --tail=20 backend
 echo ""
 
 echo "=================================="
