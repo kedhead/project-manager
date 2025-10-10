@@ -31,7 +31,9 @@ export const GanttChart: React.FC<GanttChartProps> = ({
     ];
     gantt.config.min_column_width = 50;
     gantt.config.scale_height = 60;
-    gantt.config.row_height = 38;
+    gantt.config.row_height = 44;
+    gantt.config.bar_height = 28; // Make bars taller and more visible
+    gantt.config.show_task_cells = true; // Show grid lines
     gantt.config.auto_scheduling = true;
     gantt.config.auto_scheduling_strict = true;
     gantt.config.drag_links = true;
@@ -130,19 +132,23 @@ export const GanttChart: React.FC<GanttChartProps> = ({
       return statusClasses[task.status] || '';
     };
 
-    // Enhanced timeline bar text - show task name, progress, and assignee
+    // Timeline bar text - show task name with progress and assignee
     gantt.templates.task_text = (start, end, task) => {
       const progress = Math.round(task.progress * 100);
-      const assignee = task.assigned_user_name || '';
-      return `<div style="padding: 0 8px; display: flex; align-items: center; justify-content: space-between; width: 100%; height: 100%;">
-        <span style="font-weight: 500;">${task.text}</span>
-        <span style="font-weight: 600;">${progress}%</span>
-        ${assignee ? `<span style="font-size: 11px; opacity: 0.9;">${assignee}</span>` : ''}
-      </div>`;
+      const assignee = task.assigned_user_name ? ` ${task.assigned_user_name}` : '';
+      return `${task.text} ${progress}%${assignee}`;
+    };
+
+    gantt.templates.rightside_text = (start, end, task) => {
+      // Show assignee name to the right of the bar if there's space
+      if (task.assigned_user_name) {
+        return task.assigned_user_name;
+      }
+      return '';
     };
 
     gantt.templates.progress_text = (start, end, task) => {
-      return ''; // Hide the default progress text as we're showing it in task_text
+      return Math.round(task.progress * 100) + '%';
     };
 
     gantt.templates.link_class = (link) => {
