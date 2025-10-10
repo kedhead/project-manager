@@ -30,8 +30,8 @@ export const GanttChart: React.FC<GanttChartProps> = ({
       { unit: 'month', step: 1, date: '%F %Y' }
     ];
     gantt.config.min_column_width = 50;
-    gantt.config.scale_height = 50;
-    gantt.config.row_height = 32;
+    gantt.config.scale_height = 60;
+    gantt.config.row_height = 38;
     gantt.config.auto_scheduling = true;
     gantt.config.auto_scheduling_strict = true;
     gantt.config.drag_links = true;
@@ -43,66 +43,78 @@ export const GanttChart: React.FC<GanttChartProps> = ({
     gantt.config.order_branch_free = true;
     gantt.config.fit_tasks = true; // Auto-fit timeline to tasks
 
-    // Configure columns - optimized for space efficiency
+    // Configure columns - Professional PM layout matching reference
     gantt.config.columns = [
       {
+        name: 'wbs',
+        label: 'WBS',
+        width: 50,
+        align: 'center',
+        resize: true,
+        template: (task: any) => {
+          return task.$index + 1;
+        }
+      },
+      {
         name: 'text',
-        label: 'Task name',
+        label: 'TASK NAME',
         tree: true,
-        width: 200,
+        width: 240,
         resize: true
       },
       {
         name: 'start_date',
-        label: 'Start',
+        label: 'PLANNED START DATE',
         align: 'center',
-        width: 85,
-        resize: true
+        width: 140,
+        resize: true,
+        template: (task: any) => {
+          return task.start_date ? gantt.date.date_to_str('%m/%d/%Y')(task.start_date) : '';
+        }
       },
       {
         name: 'duration',
-        label: 'Days',
+        label: 'DURATION',
         align: 'center',
-        width: 50,
-        resize: true
+        width: 80,
+        resize: true,
+        template: (task: any) => {
+          return task.duration ? `${task.duration} day${task.duration !== 1 ? 's' : ''}` : '';
+        }
       },
       {
         name: 'status',
-        label: 'Status',
+        label: 'STATUS',
         align: 'center',
-        width: 90,
+        width: 110,
         resize: true,
         template: (task: any) => {
           const statusColors: Record<string, string> = {
-            todo: '#6B7280',
+            not_started: '#6B7280',
             in_progress: '#3B82F6',
             completed: '#10B981',
             blocked: '#EF4444',
             cancelled: '#9CA3AF'
           };
           const statusLabels: Record<string, string> = {
-            todo: 'TODO',
-            in_progress: 'IN PROG',
-            completed: 'DONE',
-            blocked: 'BLOCKED',
-            cancelled: 'CANCEL'
+            not_started: 'Not Started',
+            in_progress: 'In Progress',
+            completed: 'Completed',
+            blocked: 'Blocked',
+            cancelled: 'Cancelled'
           };
           const color = statusColors[task.status] || '#6B7280';
-          const label = statusLabels[task.status] || task.status.toUpperCase();
-          return `<span style="color: ${color}; font-weight: 600; font-size: 11px;">${label}</span>`;
+          const label = statusLabels[task.status] || task.status;
+          return `<span style="color: ${color}; font-weight: 500;">${label}</span>`;
         }
       },
       {
         name: 'assigned_user_name',
-        label: 'Assigned',
+        label: 'ASSIGNED TO',
         align: 'left',
-        width: 100,
+        width: 150,
         resize: true,
-        template: (task: any) => {
-          const name = task.assigned_user_name || 'Unassigned';
-          // Show only first name if space is limited
-          return name === 'Unassigned' ? name : name.split(' ')[0];
-        }
+        template: (task: any) => task.assigned_user_name || 'Unassigned'
       }
     ];
 
@@ -118,8 +130,19 @@ export const GanttChart: React.FC<GanttChartProps> = ({
       return statusClasses[task.status] || '';
     };
 
+    // Enhanced timeline bar text - show task name, progress, and assignee
+    gantt.templates.task_text = (start, end, task) => {
+      const progress = Math.round(task.progress * 100);
+      const assignee = task.assigned_user_name || '';
+      return `<div style="padding: 0 8px; display: flex; align-items: center; justify-content: space-between; width: 100%; height: 100%;">
+        <span style="font-weight: 500;">${task.text}</span>
+        <span style="font-weight: 600;">${progress}%</span>
+        ${assignee ? `<span style="font-size: 11px; opacity: 0.9;">${assignee}</span>` : ''}
+      </div>`;
+    };
+
     gantt.templates.progress_text = (start, end, task) => {
-      return `<span style='text-align: left; padding-left: 10px;'>${Math.round(task.progress * 100)}%</span>`;
+      return ''; // Hide the default progress text as we're showing it in task_text
     };
 
     gantt.templates.link_class = (link) => {
