@@ -308,6 +308,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({
   const loadTasks = async () => {
     try {
       const tasks = await tasksApi.list(projectId);
+      console.log('Tasks from API:', tasks);
 
       // Transform tasks to Gantt format
       const ganttTasks = tasks.map((task: Task) => {
@@ -330,6 +331,8 @@ export const GanttChart: React.FC<GanttChartProps> = ({
           type: hasChildren ? 'project' : 'task'
         };
       });
+
+      console.log('Gantt tasks with colors:', ganttTasks.filter(t => t.color));
 
       // Transform dependencies to Gantt links
       const ganttLinks: any[] = [];
