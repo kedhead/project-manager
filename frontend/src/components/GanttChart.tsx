@@ -51,15 +51,17 @@ export const GanttChart: React.FC<GanttChartProps> = ({
     gantt.config.open_tree_initially = true; // Show hierarchy
     gantt.config.columns_resize = true; // Enable column resizing
 
-    // Grid column width
-    gantt.config.grid_width = 700; // Total left panel width
+    // Grid column width and resizing
+    gantt.config.grid_width = 720; // Total left panel width
+    gantt.config.grid_resize = true; // Enable dragging the splitter to resize grid
 
     // Configure columns - Excel-like editable grid
     gantt.config.columns = [
       {
         name: 'wbs',
         label: 'WBS',
-        width: 45,
+        width: 50,
+        min_width: 40,
         align: 'center',
         resize: true,
         template: (task: any) => {
@@ -68,33 +70,37 @@ export const GanttChart: React.FC<GanttChartProps> = ({
       },
       {
         name: 'text',
-        label: 'Task Name',
+        label: 'TASK NAME',
         tree: true,
-        width: 200,
+        width: 220,
+        min_width: 150,
         resize: true,
-        editor: { type: 'text', map_to: 'text' } // Inline editing
+        editor: { type: 'text', map_to: 'text' }
       },
       {
         name: 'start_date',
-        label: 'Start Date',
+        label: 'START DATE',
         align: 'center',
-        width: 100,
+        width: 110,
+        min_width: 90,
         resize: true,
-        editor: { type: 'date', map_to: 'start_date' } // Inline date picker
+        editor: { type: 'date', map_to: 'start_date' }
       },
       {
         name: 'duration',
-        label: 'Duration',
+        label: 'DURATION',
         align: 'center',
-        width: 70,
+        width: 90,
+        min_width: 70,
         resize: true,
         editor: { type: 'number', map_to: 'duration', min: 0, max: 365 }
       },
       {
         name: 'status',
-        label: 'Status',
+        label: 'STATUS',
         align: 'center',
-        width: 100,
+        width: 120,
+        min_width: 90,
         resize: true,
         editor: {
           type: 'select',
@@ -126,9 +132,10 @@ export const GanttChart: React.FC<GanttChartProps> = ({
       },
       {
         name: 'assigned_user_name',
-        label: 'Assigned',
+        label: 'ASSIGNED',
         align: 'left',
-        width: 120,
+        width: 130,
+        min_width: 100,
         resize: true,
         template: (task: any) => task.assigned_user_name || '-'
       }
@@ -359,7 +366,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({
 
   return (
     <div className="gantt-container">
-      <div ref={ganttContainer} style={{ width: '100%', height: '600px' }} />
+      <div ref={ganttContainer} style={{ width: '100%', height: 'calc(100vh - 320px)' }} />
     </div>
   );
 };
