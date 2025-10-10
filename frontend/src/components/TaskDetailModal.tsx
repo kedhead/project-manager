@@ -15,6 +15,7 @@ interface TaskDetailModalProps {
   projectId: number;
   taskId?: number;
   parentTaskId?: number;
+  onCreateSubtask?: (parentTaskId: number) => void;
 }
 
 export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
@@ -24,6 +25,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   projectId,
   taskId,
   parentTaskId,
+  onCreateSubtask,
 }) => {
   const [task, setTask] = useState<Task | null>(null);
   const [title, setTitle] = useState('');
@@ -46,6 +48,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const [newDependencyType, setNewDependencyType] = useState<'finish_to_start' | 'start_to_start' | 'finish_to_finish' | 'start_to_finish'>('finish_to_start');
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showCreateSubtask, setShowCreateSubtask] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -612,15 +615,29 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4 border-t">
             {taskId && (
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={isDeleting}
-                className="btn btn-danger flex items-center gap-2"
-              >
-                <Trash2 size={16} />
-                {isDeleting ? 'Deleting...' : 'Delete'}
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="btn btn-danger flex items-center gap-2"
+                >
+                  <Trash2 size={16} />
+                  {isDeleting ? 'Deleting...' : 'Delete'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onCreateSubtask && taskId) {
+                      onCreateSubtask(taskId);
+                    }
+                  }}
+                  className="btn btn-secondary flex items-center gap-2"
+                >
+                  <Plus size={16} />
+                  Create Subtask
+                </button>
+              </>
             )}
             <div className="flex-1"></div>
             <button

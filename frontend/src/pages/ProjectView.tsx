@@ -22,6 +22,7 @@ export const ProjectView = () => {
   const [viewMode, setViewMode] = useState<'gantt' | 'list' | 'activity'>('gantt');
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState<number | undefined>(undefined);
+  const [parentTaskIdForSubtask, setParentTaskIdForSubtask] = useState<number | undefined>(undefined);
   const [isGroupsModalOpen, setIsGroupsModalOpen] = useState(false);
   const [members, setMembers] = useState<ProjectMember[]>([]);
 
@@ -78,12 +79,20 @@ export const ProjectView = () => {
 
   const handleCreateTask = () => {
     setEditingTaskId(undefined);
+    setParentTaskIdForSubtask(undefined);
+    setIsTaskModalOpen(true);
+  };
+
+  const handleCreateSubtask = (parentTaskId: number) => {
+    setEditingTaskId(undefined);
+    setParentTaskIdForSubtask(parentTaskId);
     setIsTaskModalOpen(true);
   };
 
   const handleCloseTaskModal = () => {
     setIsTaskModalOpen(false);
     setEditingTaskId(undefined);
+    setParentTaskIdForSubtask(undefined);
   };
 
   const getStatusColor = (status: string) => {
@@ -370,6 +379,8 @@ export const ProjectView = () => {
         onSuccess={handleTaskUpdate}
         projectId={Number(id)}
         taskId={editingTaskId}
+        parentTaskId={parentTaskIdForSubtask}
+        onCreateSubtask={handleCreateSubtask}
       />
 
       {/* Groups Management Modal */}
