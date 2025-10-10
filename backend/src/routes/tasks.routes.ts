@@ -22,12 +22,12 @@ const createTaskValidation = [
     .trim(),
   body('startDate')
     .optional()
-    .isISO8601()
-    .withMessage('Start date must be a valid date'),
+    .matches(/^\d{4}-\d{2}-\d{2}/)
+    .withMessage('Start date must be in YYYY-MM-DD format'),
   body('endDate')
     .optional()
-    .isISO8601()
-    .withMessage('End date must be a valid date'),
+    .matches(/^\d{4}-\d{2}-\d{2}/)
+    .withMessage('End date must be in YYYY-MM-DD format'),
   body('duration')
     .optional()
     .isInt({ min: 0 })
@@ -67,12 +67,12 @@ const updateTaskValidation = [
     .trim(),
   body('startDate')
     .optional()
-    .isISO8601()
-    .withMessage('Start date must be a valid date'),
+    .matches(/^\d{4}-\d{2}-\d{2}/)
+    .withMessage('Start date must be in YYYY-MM-DD format'),
   body('endDate')
     .optional()
-    .isISO8601()
-    .withMessage('End date must be a valid date'),
+    .matches(/^\d{4}-\d{2}-\d{2}/)
+    .withMessage('End date must be in YYYY-MM-DD format'),
   body('duration')
     .optional()
     .isInt({ min: 0 })
@@ -135,12 +135,12 @@ const bulkUpdateValidation = [
     .withMessage('Each update must have a valid task ID'),
   body('updates.*.startDate')
     .optional()
-    .isISO8601()
-    .withMessage('Start date must be valid'),
+    .matches(/^\d{4}-\d{2}-\d{2}/)
+    .withMessage('Start date must be in YYYY-MM-DD format'),
   body('updates.*.endDate')
     .optional()
-    .isISO8601()
-    .withMessage('End date must be valid'),
+    .matches(/^\d{4}-\d{2}-\d{2}/)
+    .withMessage('End date must be in YYYY-MM-DD format'),
   body('updates.*.duration')
     .optional()
     .isInt({ min: 0 })
