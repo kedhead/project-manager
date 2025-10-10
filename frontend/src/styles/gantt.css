@@ -15,17 +15,20 @@
 .gantt_grid_scale {
   background-color: #FAFBFC !important;
   border-bottom: 1px solid #E4E7EB !important;
-  height: 44px !important;
+  height: 50px !important;
 }
 
 .gantt_grid_head_cell {
   color: #6B7280 !important;
   font-weight: 500 !important;
-  font-size: 13px !important;
+  font-size: 12px !important;
   text-transform: uppercase !important;
   letter-spacing: 0.025em !important;
   border-right: 1px solid #E4E7EB !important;
-  padding: 12px 8px !important;
+  padding: 14px 8px !important;
+  line-height: 1.3 !important;
+  vertical-align: middle !important;
+  overflow: visible !important;
 }
 
 /* Grid rows */
@@ -280,6 +283,20 @@
 
 .gantt_cal_light {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+}
+
+/* ===== GRID RESIZER ===== */
+
+.gantt_grid_resize {
+  width: 4px !important;
+  background-color: #E5E7EB !important;
+  cursor: col-resize !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.gantt_grid_resize:hover {
+  background-color: #6366F1 !important;
+  width: 6px !important;
 }
 
 /* ===== RESPONSIVE ===== */
