@@ -288,15 +288,27 @@
 /* ===== GRID RESIZER ===== */
 
 .gantt_grid_resize {
-  width: 4px !important;
-  background-color: #E5E7EB !important;
+  width: 8px !important;
+  background-color: #D1D5DB !important;
   cursor: col-resize !important;
   transition: background-color 0.2s ease !important;
+  z-index: 100 !important;
+  position: relative !important;
 }
 
 .gantt_grid_resize:hover {
   background-color: #6366F1 !important;
-  width: 6px !important;
+  width: 10px !important;
+}
+
+/* Force the resizer to be visible and draggable */
+.gantt_layout_cell.grid_cell {
+  border-right: 8px solid #D1D5DB !important;
+  cursor: col-resize !important;
+}
+
+.gantt_layout_cell.grid_cell:hover {
+  border-right-color: #6366F1 !important;
 }
 
 /* ===== RESPONSIVE ===== */
