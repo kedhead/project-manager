@@ -59,18 +59,31 @@
   font-weight: 400 !important;
 }
 
-/* Parent tasks (bold) */
+/* Parent tasks (bold) - multiple selectors to ensure it works */
 .gantt_tree_indent + .gantt_tree_icon + .gantt_tree_content {
   font-weight: 700 !important;
 }
 
 /* Make all cells in parent task rows bold */
-.gantt_grid_data .gantt_row.gantt_row_project .gantt_cell {
-  font-weight: 600 !important;
+.gantt_grid_data .gantt_row_project .gantt_cell {
+  font-weight: 700 !important;
+}
+
+.gantt_grid_data .gantt_row_project {
+  font-weight: 700 !important;
+}
+
+/* Target specific task name cell for parent tasks */
+.gantt_cell[data-column-name="text"] .gantt_tree_content {
+  font-weight: 700 !important;
 }
 
 /* Parent task bars - slightly taller */
-.gantt_row_project .gantt_task_line {
+.gantt_task_row.gantt_task_row_project .gantt_task_line {
+  font-weight: 600 !important;
+}
+
+.gantt_task_line.gantt_project {
   font-weight: 600 !important;
 }
 
