@@ -184,73 +184,6 @@ export const GanttChart: React.FC<GanttChartProps> = ({
     gantt.init(ganttContainer.current);
     isInitialized.current = true;
 
-    // Add custom grid resizer since grid_resize is PRO-only
-    const addCustomResizer = () => {
-      const gridElement = ganttContainer.current?.querySelector('.gantt_grid') as HTMLElement;
-      if (!gridElement) return;
-
-      let isResizing = false;
-      let startX = 0;
-      let startWidth = 0;
-
-      const onMouseDown = (e: MouseEvent) => {
-        const target = e.target as HTMLElement;
-        // Check if clicking near right edge of grid (within 10px)
-        const rect = gridElement.getBoundingClientRect();
-        if (Math.abs(e.clientX - rect.right) < 10) {
-          isResizing = true;
-          startX = e.clientX;
-          startWidth = gridElement.offsetWidth;
-          e.preventDefault();
-          document.body.style.cursor = 'col-resize';
-        }
-      };
-
-      const onMouseMove = (e: MouseEvent) => {
-        if (!isResizing) {
-          // Show cursor when hovering near edge
-          const rect = gridElement.getBoundingClientRect();
-          if (Math.abs(e.clientX - rect.right) < 10) {
-            document.body.style.cursor = 'col-resize';
-          } else {
-            document.body.style.cursor = '';
-          }
-          return;
-        }
-
-        const delta = e.clientX - startX;
-        const newWidth = Math.max(300, Math.min(1200, startWidth + delta));
-        gantt.config.grid_width = newWidth;
-        gantt.render();
-      };
-
-      const onMouseUp = () => {
-        if (isResizing) {
-          isResizing = false;
-          document.body.style.cursor = '';
-        }
-      };
-
-      gridElement.addEventListener('mousedown', onMouseDown);
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
-
-      return () => {
-        gridElement.removeEventListener('mousedown', onMouseDown);
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
-      };
-    };
-
-    // Add resizer after a short delay to ensure DOM is ready
-    const resizerTimeout = setTimeout(() => {
-      const cleanup = addCustomResizer();
-      if (cleanup) {
-        // Store cleanup function
-        (ganttContainer.current as any)._resizerCleanup = cleanup;
-      }
-    }, 100);
-
     // Load data
     loadTasks();
 
@@ -357,10 +290,6 @@ export const GanttChart: React.FC<GanttChartProps> = ({
     // Cleanup
     return () => {
       gantt.clearAll();
-      clearTimeout(resizerTimeout);
-      if ((ganttContainer.current as any)?._resizerCleanup) {
-        (ganttContainer.current as any)._resizerCleanup();
-      }
     };
   }, [projectId]);
 
