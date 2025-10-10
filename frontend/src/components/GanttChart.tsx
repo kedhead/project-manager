@@ -43,14 +43,22 @@ export const GanttChart: React.FC<GanttChartProps> = ({
     gantt.config.details_on_dblclick = true;
     gantt.config.order_branch = true;
     gantt.config.order_branch_free = true;
-    gantt.config.fit_tasks = true; // Auto-fit timeline to tasks
+    gantt.config.fit_tasks = true;
 
-    // Configure columns - Professional PM layout matching reference
+    // Enable inline editing like Excel
+    gantt.config.inline_editors_date_processing = 'keepDates';
+    gantt.config.open_tree_initially = true; // Show hierarchy
+    gantt.config.columns_resize = true; // Enable column resizing
+
+    // Grid column width
+    gantt.config.grid_width = 700; // Total left panel width
+
+    // Configure columns - Excel-like editable grid
     gantt.config.columns = [
       {
         name: 'wbs',
         label: 'WBS',
-        width: 50,
+        width: 45,
         align: 'center',
         resize: true,
         template: (task: any) => {
@@ -59,64 +67,69 @@ export const GanttChart: React.FC<GanttChartProps> = ({
       },
       {
         name: 'text',
-        label: 'TASK NAME',
+        label: 'Task Name',
         tree: true,
-        width: 240,
-        resize: true
+        width: 200,
+        resize: true,
+        editor: { type: 'text', map_to: 'text' } // Inline editing
       },
       {
         name: 'start_date',
-        label: 'PLANNED START DATE',
+        label: 'Start Date',
         align: 'center',
-        width: 140,
+        width: 100,
         resize: true,
-        template: (task: any) => {
-          return task.start_date ? gantt.date.date_to_str('%m/%d/%Y')(task.start_date) : '';
-        }
+        editor: { type: 'date', map_to: 'start_date' } // Inline date picker
       },
       {
         name: 'duration',
-        label: 'DURATION',
+        label: 'Duration',
         align: 'center',
-        width: 80,
+        width: 70,
         resize: true,
-        template: (task: any) => {
-          return task.duration ? `${task.duration} day${task.duration !== 1 ? 's' : ''}` : '';
-        }
+        editor: { type: 'number', map_to: 'duration', min: 0, max: 365 }
       },
       {
         name: 'status',
-        label: 'STATUS',
+        label: 'Status',
         align: 'center',
-        width: 110,
+        width: 100,
         resize: true,
+        editor: {
+          type: 'select',
+          map_to: 'status',
+          options: [
+            { key: 'not_started', label: 'Not Started' },
+            { key: 'in_progress', label: 'In Progress' },
+            { key: 'completed', label: 'Completed' },
+            { key: 'blocked', label: 'Blocked' }
+          ]
+        },
         template: (task: any) => {
           const statusColors: Record<string, string> = {
             not_started: '#6B7280',
             in_progress: '#3B82F6',
             completed: '#10B981',
-            blocked: '#EF4444',
-            cancelled: '#9CA3AF'
+            blocked: '#EF4444'
           };
           const statusLabels: Record<string, string> = {
             not_started: 'Not Started',
             in_progress: 'In Progress',
             completed: 'Completed',
-            blocked: 'Blocked',
-            cancelled: 'Cancelled'
+            blocked: 'Blocked'
           };
           const color = statusColors[task.status] || '#6B7280';
           const label = statusLabels[task.status] || task.status;
-          return `<span style="color: ${color}; font-weight: 500;">${label}</span>`;
+          return `<span style="color: ${color};">${label}</span>`;
         }
       },
       {
         name: 'assigned_user_name',
-        label: 'ASSIGNED TO',
+        label: 'Assigned',
         align: 'left',
-        width: 150,
+        width: 120,
         resize: true,
-        template: (task: any) => task.assigned_user_name || 'Unassigned'
+        template: (task: any) => task.assigned_user_name || '-'
       }
     ];
 
