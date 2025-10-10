@@ -261,7 +261,7 @@ export const ProjectView = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className={viewMode === 'gantt' ? 'px-4 py-8' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'}>
         {viewMode === 'gantt' ? (
           <div className="bg-white rounded-lg shadow">
             <div className="p-4 border-b border-gray-200">
