@@ -325,7 +325,9 @@ export const GanttChart: React.FC<GanttChartProps> = ({
         };
       });
 
-      console.log('Gantt tasks with colors:', ganttTasks.filter(t => t.color));
+      const tasksWithColors = ganttTasks.filter(t => t.color);
+      console.log('Gantt tasks with colors:', tasksWithColors);
+      console.log('Number of tasks with colors:', tasksWithColors.length);
 
       // Inject CSS for custom colors
       const styleId = 'gantt-custom-colors';
@@ -336,17 +338,20 @@ export const GanttChart: React.FC<GanttChartProps> = ({
         document.head.appendChild(styleEl);
       }
 
-      const customColorCSS = ganttTasks
-        .filter(t => t.color)
-        .map(t => `
+      const customColorCSS = tasksWithColors
+        .map(t => {
+          console.log('Creating CSS for task:', t.id, 'color:', t.color);
+          return `
           .gantt-task-id-${t.id} .gantt_task_line {
             background: ${t.color} !important;
             border-color: ${t.color} !important;
           }
-        `)
+        `;
+        })
         .join('\n');
 
       styleEl.textContent = customColorCSS;
+      console.log('Injected custom color CSS length:', customColorCSS.length);
       console.log('Injected custom color CSS:', customColorCSS);
 
       // Transform dependencies to Gantt links
