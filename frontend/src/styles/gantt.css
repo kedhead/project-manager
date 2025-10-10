@@ -61,7 +61,17 @@
 
 /* Parent tasks (bold) */
 .gantt_tree_indent + .gantt_tree_icon + .gantt_tree_content {
-  font-weight: 500 !important;
+  font-weight: 700 !important;
+}
+
+/* Make all cells in parent task rows bold */
+.gantt_grid_data .gantt_row.gantt_row_project .gantt_cell {
+  font-weight: 600 !important;
+}
+
+/* Parent task bars - slightly taller */
+.gantt_row_project .gantt_task_line {
+  font-weight: 600 !important;
 }
 
 /* ===== TASK BAR STYLING ===== */

@@ -51,6 +51,17 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const [showCreateSubtask, setShowCreateSubtask] = useState(false);
   const { user } = useAuth();
 
+  // Auto-calculate duration when dates change
+  useEffect(() => {
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const diffTime = Math.abs(end.getTime() - start.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end day
+      setDuration(diffDays);
+    }
+  }, [startDate, endDate]);
+
   useEffect(() => {
     if (isOpen) {
       loadMembers();
@@ -348,7 +359,9 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                 min="1"
                 value={duration}
                 onChange={(e) => setDuration(Number(e.target.value))}
-                className="input"
+                className="input bg-gray-50"
+                readOnly
+                title="Duration is automatically calculated from start and end dates"
               />
             </div>
           </div>

@@ -298,21 +298,25 @@ export const GanttChart: React.FC<GanttChartProps> = ({
       const tasks = await tasksApi.list(projectId);
 
       // Transform tasks to Gantt format
-      const ganttTasks = tasks.map((task: Task) => ({
-        id: task.id.toString(),
-        text: task.title,
-        start_date: task.start_date ? gantt.date.parseDate(task.start_date, 'xml_date') : new Date(),
-        end_date: task.end_date ? gantt.date.parseDate(task.end_date, 'xml_date') : null,
-        duration: task.duration || 1,
-        progress: task.progress / 100, // Convert from 0-100 to 0-1 for Gantt
-        status: task.status,
-        priority: task.priority,
-        parent: task.parent_task_id?.toString() || 0,
-        assigned_to: task.assigned_to,
-        assigned_user_name: task.assigned_user_name,
-        assigned_user_email: task.assigned_user_email,
-        open: true
-      }));
+      const ganttTasks = tasks.map((task: Task) => {
+        const hasChildren = tasks.some(t => t.parent_task_id === task.id);
+        return {
+          id: task.id.toString(),
+          text: task.title,
+          start_date: task.start_date ? gantt.date.parseDate(task.start_date, 'xml_date') : new Date(),
+          end_date: task.end_date ? gantt.date.parseDate(task.end_date, 'xml_date') : null,
+          duration: task.duration || 1,
+          progress: task.progress / 100, // Convert from 0-100 to 0-1 for Gantt
+          status: task.status,
+          priority: task.priority,
+          parent: task.parent_task_id?.toString() || 0,
+          assigned_to: task.assigned_to,
+          assigned_user_name: task.assigned_user_name,
+          assigned_user_email: task.assigned_user_email,
+          open: true,
+          type: hasChildren ? 'project' : 'task'
+        };
+      });
 
       // Transform dependencies to Gantt links
       const ganttLinks: any[] = [];
