@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { gantt } from 'dhtmlx-gantt';
 import 'dhtmlx-gantt/codebase/dhtmlxgantt.css';
+import '../styles/gantt.css'; // Import our custom styles AFTER dhtmlx default styles
 import { tasksApi, Task, TaskDependency } from '../api/tasks';
 import toast from 'react-hot-toast';
 
