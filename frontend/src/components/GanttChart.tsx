@@ -391,7 +391,8 @@ export const GanttChart: React.FC<GanttChartProps> = ({
       // Apply custom colors directly to DOM after render
       setTimeout(() => {
         tasksWithColors.forEach(task => {
-          const taskBars = document.querySelectorAll(`[data-task-id="${task.id}"] .gantt_task_line`);
+          // Use the class we added via task_class template
+          const taskBars = document.querySelectorAll(`.gantt-task-id-${task.id}.gantt_task_line`);
           taskBars.forEach((el: any) => {
             if (el && task.color) {
               el.style.background = task.color;
