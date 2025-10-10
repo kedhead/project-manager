@@ -157,7 +157,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({
 
     // Apply custom color via inline style
     gantt.templates.task_style = (start, end, task) => {
-      if (task.color && task.type !== 'project') {
+      if (task.color) {
         return `background: ${task.color} !important; border-color: ${task.color} !important;`;
       }
       return '';
