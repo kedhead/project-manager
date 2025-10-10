@@ -305,6 +305,9 @@ export const GanttChart: React.FC<GanttChartProps> = ({
 
       // Transform tasks to Gantt format
       const ganttTasks = tasks.map((task: Task) => {
+        if (task.color) {
+          console.log('Found task with color in API:', task.id, task.title, task.color);
+        }
         const hasChildren = tasks.some(t => t.parent_task_id === task.id);
         return {
           id: task.id.toString(),
