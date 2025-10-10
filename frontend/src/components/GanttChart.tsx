@@ -392,13 +392,13 @@ export const GanttChart: React.FC<GanttChartProps> = ({
       setTimeout(() => {
         tasksWithColors.forEach(task => {
           // Use the class we added via task_class template
-          const taskBars = document.querySelectorAll(`.gantt-task-id-${task.id}.gantt_task_line`);
+          const taskBars = document.querySelectorAll(`.gantt-task-id-${task.id}`);
           taskBars.forEach((el: any) => {
             if (el && task.color) {
-              el.style.background = task.color;
-              el.style.backgroundImage = 'none';
-              el.style.borderColor = task.color;
-              console.log('Applied color directly to DOM for task:', task.id, task.color);
+              el.style.setProperty('background', task.color, 'important');
+              el.style.setProperty('background-image', 'none', 'important');
+              el.style.setProperty('border-color', task.color, 'important');
+              console.log('Applied color to task:', task.id, task.color);
             }
           });
         });
