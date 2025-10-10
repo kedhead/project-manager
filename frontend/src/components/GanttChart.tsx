@@ -55,6 +55,22 @@ export const GanttChart: React.FC<GanttChartProps> = ({
     gantt.config.grid_width = 720; // Total left panel width
     gantt.config.grid_resize = true; // Enable dragging the splitter to resize grid
 
+    // Enable layout for proper grid resizing
+    gantt.config.layout = {
+      css: "gantt_container",
+      rows: [
+        {
+          cols: [
+            { view: "grid", scrollX: "scrollHor", scrollY: "scrollVer" },
+            { resizer: true, width: 1 },
+            { view: "timeline", scrollX: "scrollHor", scrollY: "scrollVer" },
+            { view: "scrollbar", id: "scrollVer" }
+          ]
+        },
+        { view: "scrollbar", id: "scrollHor" }
+      ]
+    };
+
     // Configure columns - Excel-like editable grid
     gantt.config.columns = [
       {
