@@ -345,8 +345,11 @@ export const GanttChart: React.FC<GanttChartProps> = ({
         .map(t => {
           console.log('Creating CSS for task:', t.id, 'color:', t.color);
           return `
-          .gantt-task-id-${t.id} .gantt_task_line {
+          .gantt-task-id-${t.id} .gantt_task_line,
+          .gantt_task_row.gantt-task-id-${t.id} .gantt_task_line,
+          .gantt_task_row .gantt_task_cell.gantt-task-id-${t.id} .gantt_task_line {
             background: ${t.color} !important;
+            background-image: none !important;
             border-color: ${t.color} !important;
           }
         `;
