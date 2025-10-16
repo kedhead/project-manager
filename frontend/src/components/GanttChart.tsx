@@ -247,8 +247,18 @@ export const GanttChart: React.FC<GanttChartProps> = ({
         if (onTaskUpdate) onTaskUpdate();
         toast.success('Task created successfully');
       } catch (error) {
+        console.error('Failed to create task:', error);
         toast.error('Failed to create task');
-        gantt.deleteTask(id);
+        // Try to delete the temporary task, but catch any errors
+        try {
+          if (gantt.isTaskExists(id)) {
+            gantt.deleteTask(id);
+          }
+        } catch (deleteError) {
+          console.error('Error deleting temporary task:', deleteError);
+          // Just reload to get fresh data
+          loadTasks();
+        }
       }
     };
 
