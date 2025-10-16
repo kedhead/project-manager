@@ -292,8 +292,15 @@ export const GanttChart: React.FC<GanttChartProps> = ({
     };
 
     const onTaskSelected = (id: string) => {
+      // Don't open modal for temporary tasks (not yet created in database)
+      const taskId = Number(id);
+      if (isNaN(taskId) || taskId > 1000000000000) {
+        console.log('Skipping modal for temporary task ID:', id);
+        return;
+      }
+
       if (onTaskSelect) {
-        onTaskSelect(Number(id));
+        onTaskSelect(taskId);
       }
     };
 
@@ -344,7 +351,8 @@ export const GanttChart: React.FC<GanttChartProps> = ({
 
     gantt.addTask(newTask);
     gantt.showTask(newTask.id);
-    gantt.selectTask(newTask.id);
+    // Don't select the task - it will auto-select and trigger modal
+    // Just scroll to it and user can click to edit if needed
   };
 
   // Manual recalculate dependencies function
