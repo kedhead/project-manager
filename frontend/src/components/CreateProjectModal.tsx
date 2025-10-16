@@ -18,6 +18,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
   const [description, setDescription] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [autoScheduling, setAutoScheduling] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   if (!isOpen) return null;
@@ -32,6 +33,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
         description: description || undefined,
         startDate: startDate || undefined,
         endDate: endDate || undefined,
+        autoScheduling,
       };
 
       await projectsApi.create(data);
@@ -51,6 +53,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
     setDescription('');
     setStartDate('');
     setEndDate('');
+    setAutoScheduling(false);
     onClose();
   };
 
@@ -123,6 +126,24 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                 min={startDate}
                 className="input"
               />
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <input
+              id="autoScheduling"
+              type="checkbox"
+              checked={autoScheduling}
+              onChange={(e) => setAutoScheduling(e.target.checked)}
+              className="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+            />
+            <div className="flex-1">
+              <label htmlFor="autoScheduling" className="block text-sm font-medium text-gray-900 cursor-pointer">
+                Enable Auto-Scheduling
+              </label>
+              <p className="text-xs text-gray-600 mt-1">
+                Automatically update dependent task dates when a task changes. Tasks with dependencies will shift to maintain their relationships.
+              </p>
             </div>
           </div>
 

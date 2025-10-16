@@ -345,6 +345,18 @@ export const GanttChart: React.FC<GanttChartProps> = ({
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
+    // Check if there's a selected task - if so, make new task a child of it
+    const selectedTaskId = gantt.getSelectedId();
+    let parentId: string | number = 0;
+
+    if (selectedTaskId) {
+      // Convert to number and check if it's a real task (not temporary)
+      const taskIdNum = Number(selectedTaskId);
+      if (!isNaN(taskIdNum) && taskIdNum <= 1000000000000) {
+        parentId = taskIdNum; // Use the number, not the string
+      }
+    }
+
     const newTask = {
       id: gantt.uid(),
       text: 'New Task',
@@ -354,7 +366,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({
       progress: 0,
       status: 'not_started',
       priority: 'medium',
-      parent: 0,
+      parent: parentId,
       open: true,
       type: 'task'
     };

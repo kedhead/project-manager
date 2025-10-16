@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Plus, Users, Calendar, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Plus, Users, Calendar, BarChart3, Settings } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { projectsApi, Project, ProjectMember } from '../api/projects';
 import { tasksApi, Task } from '../api/tasks';
@@ -25,6 +25,7 @@ export const ProjectView = () => {
   const [parentTaskIdForSubtask, setParentTaskIdForSubtask] = useState<number | undefined>(undefined);
   const [isGroupsModalOpen, setIsGroupsModalOpen] = useState(false);
   const [members, setMembers] = useState<ProjectMember[]>([]);
+  const [showAutoSchedulingSettings, setShowAutoSchedulingSettings] = useState(false);
 
   const loadProject = async () => {
     try {
@@ -95,6 +96,31 @@ export const ProjectView = () => {
     setParentTaskIdForSubtask(undefined);
   };
 
+  const handleToggleAutoScheduling = async () => {
+    try {
+      if (!project || !id) return;
+
+      const newValue = !project.auto_scheduling;
+      await projectsApi.update(Number(id), {
+        autoScheduling: newValue
+      });
+
+      // Update local state
+      setProject({ ...project, auto_scheduling: newValue });
+
+      toast.success(
+        newValue
+          ? 'Auto-scheduling enabled - dependent tasks will update automatically'
+          : 'Auto-scheduling disabled - you have full manual control'
+      );
+
+      // Reload to refresh Gantt chart with new setting
+      loadProject();
+    } catch (error: any) {
+      toast.error('Failed to update auto-scheduling setting');
+    }
+  };
+
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
       planning: 'bg-gray-100 text-gray-800',
@@ -152,6 +178,13 @@ export const ProjectView = () => {
             </div>
             <div className="flex items-center gap-3">
               <ExportMenu projectId={Number(id)} projectName={project.name} />
+              <button
+                onClick={() => setShowAutoSchedulingSettings(!showAutoSchedulingSettings)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                title="Project Settings"
+              >
+                <Settings size={20} />
+              </button>
               <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
                 {project.status.replace('_', ' ').toUpperCase()}
               </span>
@@ -160,6 +193,43 @@ export const ProjectView = () => {
               </span>
             </div>
           </div>
+
+          {/* Auto-Scheduling Settings Panel */}
+          {showAutoSchedulingSettings && (
+            <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-1">Auto-Scheduling</h3>
+                  <p className="text-xs text-gray-600 mb-3">
+                    When enabled, changing a task's dates will automatically update all dependent tasks to maintain their relationships.
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={handleToggleAutoScheduling}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
+                        project.auto_scheduling ? 'bg-primary-600' : 'bg-gray-200'
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                          project.auto_scheduling ? 'translate-x-5' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                    <span className="text-sm font-medium text-gray-900">
+                      {project.auto_scheduling ? 'Enabled' : 'Disabled'}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowAutoSchedulingSettings(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Project Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
