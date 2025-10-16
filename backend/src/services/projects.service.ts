@@ -8,6 +8,7 @@ interface Project {
   start_date: Date | null;
   end_date: Date | null;
   status: string;
+  auto_scheduling: boolean;
   created_by: number;
   created_at: Date;
   updated_at: Date;
@@ -34,7 +35,8 @@ export class ProjectsService {
     name: string,
     description: string | null = null,
     startDate: Date | null = null,
-    endDate: Date | null = null
+    endDate: Date | null = null,
+    autoScheduling: boolean = false
   ): Promise<ProjectWithRole> {
     return transaction(async (client) => {
       // Validate dates
@@ -44,10 +46,10 @@ export class ProjectsService {
 
       // Create project
       const projectResult = await client.query(
-        `INSERT INTO projects (name, description, start_date, end_date, created_by)
-         VALUES ($1, $2, $3, $4, $5)
+        `INSERT INTO projects (name, description, start_date, end_date, auto_scheduling, created_by)
+         VALUES ($1, $2, $3, $4, $5, $6)
          RETURNING *`,
-        [name, description, startDate, endDate, userId]
+        [name, description, startDate, endDate, autoScheduling, userId]
       );
 
       const project = projectResult.rows[0];
@@ -152,6 +154,7 @@ export class ProjectsService {
       startDate?: Date;
       endDate?: Date;
       status?: string;
+      autoScheduling?: boolean;
     }
   ): Promise<Project> {
     return transaction(async (client) => {
@@ -203,6 +206,12 @@ export class ProjectsService {
       if (updates.status !== undefined) {
         updateFields.push(`status = $${paramIndex}`);
         values.push(updates.status);
+        paramIndex++;
+      }
+
+      if (updates.autoScheduling !== undefined) {
+        updateFields.push(`auto_scheduling = $${paramIndex}`);
+        values.push(updates.autoScheduling);
         paramIndex++;
       }
 

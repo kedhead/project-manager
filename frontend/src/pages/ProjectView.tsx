@@ -287,6 +287,7 @@ export const ProjectView = () => {
               ) : (
                 <GanttChart
                   projectId={Number(id)}
+                  autoScheduling={project?.auto_scheduling || false}
                   onTaskSelect={handleTaskSelect}
                   onTaskUpdate={handleTaskUpdate}
                 />

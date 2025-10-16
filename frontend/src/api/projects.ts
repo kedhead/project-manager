@@ -7,6 +7,7 @@ export interface Project {
   start_date: string | null;
   end_date: string | null;
   status: 'planning' | 'active' | 'on_hold' | 'completed' | 'cancelled';
+  auto_scheduling: boolean;
   created_by: number;
   created_at: string;
   updated_at: string;
@@ -20,6 +21,7 @@ export interface CreateProjectData {
   description?: string;
   startDate?: string;
   endDate?: string;
+  autoScheduling?: boolean;
 }
 
 export interface UpdateProjectData {
@@ -28,6 +30,7 @@ export interface UpdateProjectData {
   startDate?: string;
   endDate?: string;
   status?: 'planning' | 'active' | 'on_hold' | 'completed' | 'cancelled';
+  autoScheduling?: boolean;
 }
 
 export interface ProjectMember {

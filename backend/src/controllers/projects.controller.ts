@@ -12,14 +12,15 @@ export class ProjectsController {
     }
 
     const userId = req.user!.userId;
-    const { name, description, startDate, endDate } = req.body;
+    const { name, description, startDate, endDate, autoScheduling } = req.body;
 
     const project = await ProjectsService.createProject(
       userId,
       name,
       description,
       startDate,
-      endDate
+      endDate,
+      autoScheduling
     );
 
     res.status(201).json({
@@ -79,7 +80,7 @@ export class ProjectsController {
       throw new AppError('Invalid project ID', 400);
     }
 
-    const { name, description, startDate, endDate, status } = req.body;
+    const { name, description, startDate, endDate, status, autoScheduling } = req.body;
 
     const project = await ProjectsService.updateProject(projectId, userId, {
       name,
@@ -87,6 +88,7 @@ export class ProjectsController {
       startDate,
       endDate,
       status,
+      autoScheduling,
     });
 
     res.status(200).json({

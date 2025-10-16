@@ -7,17 +7,20 @@ import toast from 'react-hot-toast';
 
 interface GanttChartProps {
   projectId: number;
+  autoScheduling?: boolean;
   onTaskSelect?: (taskId: number) => void;
   onTaskUpdate?: () => void;
 }
 
 export const GanttChart: React.FC<GanttChartProps> = ({
   projectId,
+  autoScheduling = false,
   onTaskSelect,
   onTaskUpdate,
 }) => {
   const ganttContainer = useRef<HTMLDivElement>(null);
   const isInitialized = useRef(false);
+  const addTaskButtonRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!ganttContainer.current || isInitialized.current) return;
@@ -35,8 +38,10 @@ export const GanttChart: React.FC<GanttChartProps> = ({
     gantt.config.row_height = 44;
     gantt.config.bar_height = 28; // Make bars taller and more visible
     gantt.config.show_task_cells = true; // Show grid lines
-    gantt.config.auto_scheduling = false; // Disable auto-scheduling so parent tasks can be edited
-    gantt.config.auto_scheduling_strict = false;
+    gantt.config.auto_scheduling = autoScheduling; // Enable/disable based on project setting
+    gantt.config.auto_scheduling_strict = autoScheduling;
+    gantt.config.auto_scheduling_initial = false; // Only reschedule when explicitly changed
+    gantt.config.auto_scheduling_descendants = true; // Update all dependent tasks
     gantt.config.drag_links = true;
     gantt.config.drag_progress = true;
     gantt.config.drag_resize = true;
@@ -292,11 +297,57 @@ export const GanttChart: React.FC<GanttChartProps> = ({
     gantt.attachEvent('onAfterLinkDelete', onAfterLinkDelete);
     gantt.attachEvent('onTaskSelected', onTaskSelected);
 
+    // Add keyboard shortcut handler (Ctrl+Enter to add new task)
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        addNewTask();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
     // Cleanup
     return () => {
       gantt.clearAll();
+      document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [projectId]);
+  }, [projectId, autoScheduling]);
+
+  // Add new task function
+  const addNewTask = () => {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const newTask = {
+      id: gantt.uid(),
+      text: 'New Task',
+      start_date: today,
+      end_date: tomorrow,
+      duration: 1,
+      progress: 0,
+      status: 'not_started',
+      priority: 'medium',
+      parent: 0,
+      open: true,
+      type: 'task'
+    };
+
+    gantt.addTask(newTask);
+    gantt.showTask(newTask.id);
+    gantt.selectTask(newTask.id);
+  };
+
+  // Manual recalculate dependencies function
+  const recalculateDependencies = () => {
+    if (autoScheduling) {
+      gantt.autoSchedule();
+      toast.success('Dependencies recalculated');
+    } else {
+      toast.error('Auto-scheduling is disabled for this project');
+    }
+  };
 
   const loadTasks = async () => {
     try {
@@ -430,7 +481,63 @@ export const GanttChart: React.FC<GanttChartProps> = ({
 
   return (
     <div className="gantt-container">
-      <div ref={ganttContainer} style={{ width: '100%', height: 'calc(100vh - 320px)' }} />
+      <div className="gantt-toolbar" style={{
+        padding: '12px 16px',
+        borderBottom: '1px solid #E4E7EB',
+        display: 'flex',
+        gap: '12px',
+        alignItems: 'center',
+        backgroundColor: '#FAFBFC'
+      }}>
+        <button
+          onClick={addNewTask}
+          className="gantt-btn gantt-btn-primary"
+          style={{
+            padding: '8px 16px',
+            backgroundColor: '#6366F1',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}
+          title="Add new task (Ctrl+Enter)"
+        >
+          <span>➕</span> Add Task
+        </button>
+        <button
+          onClick={recalculateDependencies}
+          disabled={!autoScheduling}
+          className="gantt-btn gantt-btn-secondary"
+          style={{
+            padding: '8px 16px',
+            backgroundColor: autoScheduling ? '#10B981' : '#D1D5DB',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: autoScheduling ? 'pointer' : 'not-allowed',
+            fontSize: '14px',
+            fontWeight: '500',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            opacity: autoScheduling ? 1 : 0.6
+          }}
+          title={autoScheduling ? "Recalculate all dependencies" : "Auto-scheduling is disabled"}
+        >
+          <span>🔄</span> Recalculate
+        </button>
+        <div style={{ fontSize: '13px', color: '#6B7280', marginLeft: 'auto' }}>
+          {autoScheduling && <span style={{ color: '#10B981', fontWeight: '500' }}>● Auto-scheduling enabled</span>}
+          {!autoScheduling && <span style={{ color: '#9CA3AF' }}>○ Auto-scheduling disabled</span>}
+          <span style={{ marginLeft: '12px', color: '#9CA3AF' }}>• Ctrl+Enter to add task</span>
+        </div>
+      </div>
+      <div ref={ganttContainer} style={{ width: '100%', height: 'calc(100vh - 380px)' }} />
     </div>
   );
 };
