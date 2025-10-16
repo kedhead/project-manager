@@ -1,7 +1,6 @@
-import { useEffect, useRef } from 'react';
-import { gantt } from 'dhtmlx-gantt';
-import 'dhtmlx-gantt/codebase/dhtmlxgantt.css';
-import '../styles/gantt.css'; // Import our custom styles AFTER dhtmlx default styles
+import { useEffect, useRef, useState } from 'react';
+import { Gantt } from 'wx-react-gantt';
+import 'wx-react-gantt/dist/gantt.css';
 import { tasksApi, Task, TaskDependency } from '../api/tasks';
 import toast from 'react-hot-toast';
 
@@ -18,321 +17,300 @@ export const GanttChart: React.FC<GanttChartProps> = ({
   onTaskSelect,
   onTaskUpdate,
 }) => {
-  const ganttContainer = useRef<HTMLDivElement>(null);
-  const isInitialized = useRef(false);
-  const addTaskButtonRef = useRef<HTMLDivElement>(null);
+  const apiRef = useRef<any>(null);
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [links, setLinks] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Configure columns for the grid
+  const columns = [
+    {
+      id: 'text',
+      label: 'Task name',
+      width: 250,
+      resize: true,
+    },
+    {
+      id: 'start',
+      label: 'Start date',
+      width: 120,
+      resize: true,
+    },
+    {
+      id: 'duration',
+      label: 'Duration',
+      width: 80,
+      align: 'center',
+      resize: true,
+    },
+    {
+      id: 'progress',
+      label: 'Progress',
+      width: 80,
+      align: 'center',
+      resize: true,
+      template: (task: any) => `${Math.round(task.progress || 0)}%`,
+    },
+    {
+      id: 'assigned_user_name',
+      label: 'Assigned',
+      width: 130,
+      resize: true,
+      template: (task: any) => task.assigned_user_name || '-',
+    },
+  ];
+
+  // Configure scales for the timeline
+  const scales = [
+    { unit: 'month', step: 1, format: 'MMMM yyyy' },
+    { unit: 'day', step: 1, format: 'd' },
+  ];
+
+  // Load tasks from API
+  const loadTasks = async () => {
+    try {
+      setIsLoading(true);
+      const apiTasks = await tasksApi.list(projectId);
+      console.log('Tasks from API:', apiTasks);
+
+      // Transform tasks to SVAR Gantt format
+      const ganttTasks = apiTasks.map((task: Task) => ({
+        id: task.id,
+        text: task.title,
+        start: task.start_date ? new Date(task.start_date) : new Date(),
+        end: task.end_date ? new Date(task.end_date) : new Date(),
+        duration: task.duration || 1,
+        progress: task.progress || 0,
+        type: apiTasks.some(t => t.parent_task_id === task.id) ? 'summary' : 'task',
+        parent: task.parent_task_id || 0,
+        open: true,
+        // Custom properties
+        status: task.status,
+        priority: task.priority,
+        assigned_to: task.assigned_to,
+        assigned_user_name: task.assigned_user_name,
+        assigned_user_email: task.assigned_user_email,
+        color: task.color,
+      }));
+
+      // Transform dependencies to SVAR Gantt links
+      const ganttLinks: any[] = [];
+      apiTasks.forEach((task: Task) => {
+        if (task.dependencies && task.dependencies.length > 0) {
+          task.dependencies.forEach((dep: TaskDependency) => {
+            const typeMap: Record<string, string> = {
+              finish_to_start: 'e2s',
+              start_to_start: 's2s',
+              finish_to_finish: 'e2e',
+              start_to_finish: 's2e',
+            };
+            ganttLinks.push({
+              id: dep.id,
+              source: dep.depends_on_task_id,
+              target: task.id,
+              type: typeMap[dep.dependency_type] || 'e2s',
+            });
+          });
+        }
+      });
+
+      setTasks(ganttTasks);
+      setLinks(ganttLinks);
+    } catch (error) {
+      console.error('Failed to load tasks:', error);
+      toast.error('Failed to load tasks');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Initialize and set up event handlers
   useEffect(() => {
-    if (!ganttContainer.current || isInitialized.current) return;
-
-    // Initialize Gantt chart
-    gantt.config.date_format = '%Y-%m-%d %H:%i';
-    gantt.config.xml_date = '%Y-%m-%d';
-    gantt.config.scale_unit = 'day';
-    gantt.config.date_scale = '%d %M';
-    gantt.config.subscales = [
-      { unit: 'month', step: 1, date: '%F %Y' }
-    ];
-    gantt.config.min_column_width = 50;
-    gantt.config.scale_height = 60;
-    gantt.config.row_height = 44;
-    gantt.config.bar_height = 28; // Make bars taller and more visible
-    gantt.config.show_task_cells = true; // Show grid lines
-    gantt.config.auto_scheduling = autoScheduling; // Enable/disable based on project setting
-    gantt.config.auto_scheduling_strict = autoScheduling;
-    gantt.config.auto_scheduling_initial = false; // Only reschedule when explicitly changed
-    gantt.config.auto_scheduling_descendants = true; // Update all dependent tasks
-    gantt.config.drag_links = true;
-    gantt.config.drag_progress = true;
-    gantt.config.drag_resize = true;
-    gantt.config.drag_move = true;
-    gantt.config.details_on_dblclick = true;
-    gantt.config.order_branch = true;
-    gantt.config.order_branch_free = true;
-    gantt.config.fit_tasks = true;
-
-    // Enable inline editing like Excel
-    gantt.config.inline_editors_date_processing = 'keepDates';
-    gantt.config.open_tree_initially = true; // Show hierarchy
-    gantt.config.columns_resize = true; // Enable column resizing
-
-    // Grid column width and resizing
-    gantt.config.grid_width = 720; // Total left panel width
-    gantt.config.grid_resize = true; // Enable dragging the splitter to resize grid
-    gantt.config.keep_grid_width = false; // Allow grid to be resized
-    gantt.config.min_grid_column_width = 100; // Minimum width when resizing
-
-    // Configure columns - Excel-like editable grid
-    gantt.config.columns = [
-      {
-        name: 'wbs',
-        label: 'WBS',
-        width: 50,
-        min_width: 40,
-        align: 'center',
-        resize: true,
-        template: (task: any) => {
-          return task.$index + 1;
-        }
-      },
-      {
-        name: 'text',
-        label: 'TASK NAME',
-        tree: true,
-        width: 220,
-        min_width: 150,
-        resize: true,
-        editor: { type: 'text', map_to: 'text' }
-      },
-      {
-        name: 'start_date',
-        label: 'START DATE',
-        align: 'center',
-        width: 110,
-        min_width: 90,
-        resize: true,
-        editor: { type: 'date', map_to: 'start_date' }
-      },
-      {
-        name: 'duration',
-        label: 'DURATION',
-        align: 'center',
-        width: 90,
-        min_width: 70,
-        resize: true,
-        editor: { type: 'number', map_to: 'duration', min: 0, max: 365 }
-      },
-      {
-        name: 'status',
-        label: 'STATUS',
-        align: 'center',
-        width: 120,
-        min_width: 90,
-        resize: true,
-        editor: {
-          type: 'select',
-          map_to: 'status',
-          options: [
-            { key: 'not_started', label: 'Not Started' },
-            { key: 'in_progress', label: 'In Progress' },
-            { key: 'completed', label: 'Completed' },
-            { key: 'blocked', label: 'Blocked' }
-          ]
-        },
-        template: (task: any) => {
-          const statusColors: Record<string, string> = {
-            not_started: '#6B7280',
-            in_progress: '#3B82F6',
-            completed: '#10B981',
-            blocked: '#EF4444'
-          };
-          const statusLabels: Record<string, string> = {
-            not_started: 'Not Started',
-            in_progress: 'In Progress',
-            completed: 'Completed',
-            blocked: 'Blocked'
-          };
-          const color = statusColors[task.status] || '#6B7280';
-          const label = statusLabels[task.status] || task.status;
-          return `<span style="color: ${color};">${label}</span>`;
-        }
-      },
-      {
-        name: 'assigned_user_name',
-        label: 'ASSIGNED',
-        align: 'left',
-        width: 130,
-        min_width: 100,
-        resize: true,
-        template: (task: any) => task.assigned_user_name || '-'
-      }
-    ];
-
-    // Configure task templates - use custom color or assign random colors
-    gantt.templates.task_class = (start, end, task) => {
-      // If task has custom color, create a unique class for it
-      if (task.color) {
-        console.log('Task has color:', task.color, 'for task:', task.text);
-        return `gantt-task-custom-color gantt-task-id-${task.id}`;
-      }
-      const colors = ['blue', 'yellow', 'purple', 'pink', 'orange', 'cyan', 'green'];
-      // Use task ID to consistently assign same color to same task
-      const colorIndex = task.id ? parseInt(task.id.toString()) % colors.length : 0;
-      return `gantt-task-color-${colors[colorIndex]}`;
-    };
-
-    // Timeline bar text - show task name with progress and assignee
-    gantt.templates.task_text = (start, end, task) => {
-      const progress = Math.round(task.progress * 100);
-      const assignee = task.assigned_user_name ? ` ${task.assigned_user_name}` : '';
-      return `${task.text} ${progress}%${assignee}`;
-    };
-
-    gantt.templates.rightside_text = (start, end, task) => {
-      // Show assignee name to the right of the bar if there's space
-      if (task.assigned_user_name) {
-        return task.assigned_user_name;
-      }
-      return '';
-    };
-
-    gantt.templates.progress_text = (start, end, task) => {
-      return Math.round(task.progress * 100) + '%';
-    };
-
-    gantt.templates.link_class = (link) => {
-      const types: Record<number, string> = {
-        0: 'finish_to_start',
-        1: 'start_to_start',
-        2: 'finish_to_finish',
-        3: 'start_to_finish'
-      };
-      return `gantt-link-${types[link.type] || 'finish_to_start'}`;
-    };
-
-    // Initialize the Gantt chart
-    gantt.init(ganttContainer.current);
-    isInitialized.current = true;
-
-    // Load data
     loadTasks();
+  }, [projectId]);
 
-    // Event handlers
-    const onAfterTaskUpdate = async (id: string, task: any) => {
+  // Set up API event handlers when API is available
+  useEffect(() => {
+    if (!apiRef.current) return;
+
+    const api = apiRef.current;
+
+    // Handle add task
+    const unsubAdd = api.on('add-task', async (event: any) => {
       try {
-        // Check if this is a temporary ID (from gantt.uid()) - skip update if so
-        const taskId = Number(id);
-        if (isNaN(taskId) || taskId > 1000000000000) {
-          // This is a temporary ID, onAfterTaskAdd will handle creation
-          console.log('Skipping update for temporary task ID:', id);
-          return;
-        }
-
-        // Ensure progress is an integer 0-100
-        const progressValue = typeof task.progress === 'number'
-          ? Math.round(Math.max(0, Math.min(1, task.progress)) * 100)
-          : 0;
-
-        await tasksApi.update(taskId, {
-          title: task.text,
-          startDate: gantt.date.date_to_str('%Y-%m-%d')(task.start_date),
-          endDate: gantt.date.date_to_str('%Y-%m-%d')(task.end_date),
-          duration: task.duration,
-          progress: progressValue,
-          status: task.status,
-          priority: task.priority,
-          assignedTo: task.assigned_to ? Number(task.assigned_to) : null,
-          parentTaskId: task.parent || null
-        });
-        if (onTaskUpdate) onTaskUpdate();
-        toast.success('Task updated successfully');
-      } catch (error) {
-        toast.error('Failed to update task');
-        loadTasks(); // Reload to revert changes
-      }
-    };
-
-    const onAfterTaskAdd = async (id: string, task: any) => {
-      try {
+        const task = event.task;
         const newTask = await tasksApi.create(projectId, {
           title: task.text || 'New Task',
-          startDate: gantt.date.date_to_str('%Y-%m-%d')(task.start_date),
-          endDate: gantt.date.date_to_str('%Y-%m-%d')(task.end_date),
-          duration: task.duration,
+          startDate: task.start.toISOString().split('T')[0],
+          endDate: task.end.toISOString().split('T')[0],
+          duration: task.duration || 1,
           status: 'not_started',
           priority: 'medium',
-          parentTaskId: task.parent || undefined
+          parentTaskId: task.parent || undefined,
         });
 
-        // Check if task still exists before changing ID
-        if (gantt.isTaskExists(id)) {
-          gantt.changeTaskId(id, newTask.id.toString());
-        }
+        // Update the task ID in the Gantt
+        event.task.id = newTask.id;
 
         if (onTaskUpdate) onTaskUpdate();
         toast.success('Task created successfully');
       } catch (error) {
         console.error('Failed to create task:', error);
         toast.error('Failed to create task');
-
-        // Silently try to clean up - don't throw errors to user
-        setTimeout(() => {
-          try {
-            if (gantt.isTaskExists(id)) {
-              gantt.silent(() => {
-                gantt.deleteTask(id);
-              });
-            }
-          } catch (deleteError) {
-            console.error('Error deleting temporary task:', deleteError);
-            // Last resort: reload all tasks
-            loadTasks();
-          }
-        }, 100);
+        // Reload to revert
+        loadTasks();
       }
-    };
+    });
 
-    const onAfterTaskDelete = async (id: string) => {
+    // Handle update task
+    const unsubUpdate = api.on('update-task', async (event: any) => {
       try {
-        await tasksApi.delete(Number(id));
+        const task = event.task;
+        const taskId = Number(task.id);
+
+        await tasksApi.update(taskId, {
+          title: task.text,
+          startDate: task.start.toISOString().split('T')[0],
+          endDate: task.end.toISOString().split('T')[0],
+          duration: task.duration,
+          progress: Math.round(task.progress || 0),
+          status: task.status || 'not_started',
+          priority: task.priority || 'medium',
+          parentTaskId: task.parent || null,
+        });
+
+        if (onTaskUpdate) onTaskUpdate();
+        toast.success('Task updated successfully');
+      } catch (error) {
+        console.error('Failed to update task:', error);
+        toast.error('Failed to update task');
+        // Reload to revert
+        loadTasks();
+      }
+    });
+
+    // Handle delete task
+    const unsubDelete = api.on('delete-task', async (event: any) => {
+      try {
+        const taskId = Number(event.id);
+        await tasksApi.delete(taskId);
+
         if (onTaskUpdate) onTaskUpdate();
         toast.success('Task deleted successfully');
       } catch (error) {
+        console.error('Failed to delete task:', error);
         toast.error('Failed to delete task');
-        loadTasks(); // Reload to restore task
+        // Reload to revert
+        loadTasks();
       }
-    };
+    });
 
-    const onAfterLinkAdd = async (id: string, link: any) => {
+    // Handle add link
+    const unsubAddLink = api.on('add-link', async (event: any) => {
       try {
-        const types = ['finish_to_start', 'start_to_start', 'finish_to_finish', 'start_to_finish'] as const;
+        const link = event.link;
+        const typeMap: Record<string, string> = {
+          'e2s': 'finish_to_start',
+          's2s': 'start_to_start',
+          'e2e': 'finish_to_finish',
+          's2e': 'start_to_finish',
+        };
+
+        const depType = (typeMap[link.type] || 'finish_to_start') as 'finish_to_start' | 'start_to_start' | 'finish_to_finish' | 'start_to_finish';
         await tasksApi.addDependency(
           Number(link.target),
           Number(link.source),
-          types[link.type] || 'finish_to_start',
+          depType,
           0
         );
+
         if (onTaskUpdate) onTaskUpdate();
         toast.success('Dependency added successfully');
       } catch (error) {
+        console.error('Failed to add dependency:', error);
         toast.error('Failed to add dependency');
-        gantt.deleteLink(id);
+        // Reload to revert
+        loadTasks();
       }
-    };
+    });
 
-    const onAfterLinkDelete = async (id: string, link: any) => {
+    // Handle delete link
+    const unsubDeleteLink = api.on('delete-link', async (event: any) => {
       try {
-        await tasksApi.removeDependency(Number(link.target), Number(id));
+        await tasksApi.removeDependency(Number(event.link.target), Number(event.id));
+
         if (onTaskUpdate) onTaskUpdate();
         toast.success('Dependency removed successfully');
       } catch (error) {
+        console.error('Failed to remove dependency:', error);
         toast.error('Failed to remove dependency');
-        loadTasks(); // Reload to restore link
+        // Reload to revert
+        loadTasks();
       }
+    });
+
+    // Handle task selection
+    const unsubSelect = api.on('select-task', (event: any) => {
+      if (onTaskSelect && event.id) {
+        const taskId = Number(event.id);
+        if (!isNaN(taskId)) {
+          onTaskSelect(taskId);
+        }
+      }
+    });
+
+    // Cleanup subscriptions
+    return () => {
+      unsubAdd();
+      unsubUpdate();
+      unsubDelete();
+      unsubAddLink();
+      unsubDeleteLink();
+      unsubSelect();
+    };
+  }, [apiRef.current, projectId, onTaskSelect, onTaskUpdate]);
+
+  // Add new task function (for button and keyboard shortcut)
+  const addNewTask = () => {
+    if (!apiRef.current) return;
+
+    const api = apiRef.current;
+    const state = api.getState();
+
+    // Get selected task to check if we should create a subtask
+    const selectedId = state.selected;
+
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const newTask = {
+      id: Date.now(), // Temporary ID
+      text: 'New Task',
+      start: today,
+      end: tomorrow,
+      duration: 1,
+      progress: 0,
+      type: 'task',
+      parent: selectedId || 0,
     };
 
-    const onTaskSelected = (id: string) => {
-      // Don't open modal for temporary tasks (not yet created in database)
-      const taskId = Number(id);
-      if (isNaN(taskId) || taskId > 1000000000000) {
-        console.log('Skipping modal for temporary task ID:', id);
-        return;
-      }
+    // Use exec to add task through the proper channels
+    api.exec('add-task', { task: newTask, mode: 'child' });
+  };
 
-      if (onTaskSelect) {
-        onTaskSelect(taskId);
-      }
-    };
+  // Manual recalculate dependencies function
+  const recalculateDependencies = () => {
+    if (autoScheduling) {
+      loadTasks();
+      toast.success('Tasks reloaded - dependencies recalculated');
+    } else {
+      toast.error('Auto-scheduling is disabled for this project');
+    }
+  };
 
-    // Attach event handlers
-    gantt.attachEvent('onAfterTaskUpdate', onAfterTaskUpdate);
-    gantt.attachEvent('onAfterTaskAdd', onAfterTaskAdd);
-    gantt.attachEvent('onAfterTaskDelete', onAfterTaskDelete);
-    gantt.attachEvent('onAfterLinkAdd', onAfterLinkAdd);
-    gantt.attachEvent('onAfterLinkDelete', onAfterLinkDelete);
-    gantt.attachEvent('onTaskSelected', onTaskSelected);
-
-    // Add keyboard shortcut handler (Ctrl+Enter to add new task)
+  // Keyboard shortcut handler
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
@@ -341,205 +319,30 @@ export const GanttChart: React.FC<GanttChartProps> = ({
     };
 
     document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [apiRef.current]);
 
-    // Cleanup
-    return () => {
-      gantt.clearAll();
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [projectId, autoScheduling]);
-
-  // Add new task function
-  const addNewTask = () => {
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    // Check if there's a selected task - if so, make new task a child of it
-    const selectedTaskId = gantt.getSelectedId();
-    let parentId: string | number = 0;
-
-    if (selectedTaskId) {
-      // Convert to number and check if it's a real task (not temporary)
-      const taskIdNum = Number(selectedTaskId);
-      if (!isNaN(taskIdNum) && taskIdNum <= 1000000000000) {
-        parentId = taskIdNum; // Use the number, not the string
-      }
-    }
-
-    const newTask = {
-      id: gantt.uid(),
-      text: 'New Task',
-      start_date: today,
-      end_date: tomorrow,
-      duration: 1,
-      progress: 0,
-      status: 'not_started',
-      priority: 'medium',
-      parent: parentId,
-      open: true,
-      type: 'task'
-    };
-
-    gantt.addTask(newTask);
-    gantt.showTask(newTask.id);
-    // Don't select the task - it will auto-select and trigger modal
-    // Just scroll to it and user can click to edit if needed
-  };
-
-  // Manual recalculate dependencies function
-  const recalculateDependencies = () => {
-    if (autoScheduling) {
-      // Note: gantt.autoSchedule() is only available in Pro version
-      // In free version, auto-scheduling happens automatically on drag/resize
-      // So we'll just reload the tasks to recalculate
-      loadTasks();
-      toast.success('Tasks reloaded - auto-scheduling is active');
-    } else {
-      toast.error('Auto-scheduling is disabled for this project');
-    }
-  };
-
-  const loadTasks = async () => {
-    try {
-      const tasks = await tasksApi.list(projectId);
-      console.log('Tasks from API:', tasks);
-
-      // Transform tasks to Gantt format
-      const ganttTasks = tasks.map((task: Task) => {
-        if (task.color) {
-          console.log('Found task with color in API:', task.id, task.title, task.color);
-        }
-        const hasChildren = tasks.some(t => t.parent_task_id === task.id);
-        return {
-          id: task.id.toString(),
-          text: task.title,
-          start_date: task.start_date ? gantt.date.parseDate(task.start_date, 'xml_date') : new Date(),
-          end_date: task.end_date ? gantt.date.parseDate(task.end_date, 'xml_date') : null,
-          duration: task.duration || 1,
-          progress: task.progress / 100, // Convert from 0-100 to 0-1 for Gantt
-          status: task.status,
-          priority: task.priority,
-          parent: task.parent_task_id?.toString() || 0,
-          assigned_to: task.assigned_to,
-          assigned_user_name: task.assigned_user_name,
-          assigned_user_email: task.assigned_user_email,
-          color: task.color,
-          open: true,
-          type: hasChildren ? 'project' : 'task'
-        };
-      });
-
-      const tasksWithColors = ganttTasks.filter(t => t.color);
-      console.log('Gantt tasks with colors:', tasksWithColors);
-      console.log('Number of tasks with colors:', tasksWithColors.length);
-
-      // Inject CSS for custom colors
-      const styleId = 'gantt-custom-colors';
-      let styleEl = document.getElementById(styleId);
-      if (!styleEl) {
-        styleEl = document.createElement('style');
-        styleEl.id = styleId;
-        document.head.appendChild(styleEl);
-      }
-
-      const customColorCSS = tasksWithColors
-        .map(t => {
-          console.log('Creating CSS for task:', t.id, 'color:', t.color);
-          return `
-          .gantt-task-id-${t.id} .gantt_task_line,
-          .gantt_task_row.gantt-task-id-${t.id} .gantt_task_line,
-          .gantt_task_row .gantt_task_cell.gantt-task-id-${t.id} .gantt_task_line {
-            background: ${t.color} !important;
-            background-image: none !important;
-            border-color: ${t.color} !important;
-          }
-        `;
-        })
-        .join('\n');
-
-      styleEl.textContent = customColorCSS;
-      console.log('Injected custom color CSS length:', customColorCSS.length);
-      console.log('Injected custom color CSS:', customColorCSS);
-
-      // Transform dependencies to Gantt links
-      const ganttLinks: any[] = [];
-      tasks.forEach((task: Task) => {
-        if (task.dependencies && task.dependencies.length > 0) {
-          task.dependencies.forEach((dep: TaskDependency) => {
-            const typeMap: Record<string, number> = {
-              finish_to_start: 0,
-              start_to_start: 1,
-              finish_to_finish: 2,
-              start_to_finish: 3
-            };
-            ganttLinks.push({
-              id: dep.id.toString(),
-              source: dep.depends_on_task_id.toString(),
-              target: task.id.toString(),
-              type: typeMap[dep.dependency_type] || 0,
-              lag: dep.lag_time || 0
-            });
-          });
-        }
-      });
-
-      // Parse data into Gantt
-      gantt.parse({
-        data: ganttTasks,
-        links: ganttLinks
-      });
-
-      // Apply custom colors directly to DOM after render
-      setTimeout(() => {
-        tasksWithColors.forEach(task => {
-          // Use the class we added via task_class template
-          const taskBars = document.querySelectorAll(`.gantt-task-id-${task.id}`);
-          taskBars.forEach((el: any) => {
-            if (el && task.color) {
-              el.style.setProperty('background', task.color, 'important');
-              el.style.setProperty('background-image', 'none', 'important');
-              el.style.setProperty('border-color', task.color, 'important');
-              console.log('Applied color to task:', task.id, task.color);
-            }
-          });
-        });
-      }, 100);
-
-      // Auto-zoom to fit tasks with some padding
-      if (ganttTasks.length > 0) {
-        const dates = ganttTasks
-          .filter(t => t.start_date && t.end_date)
-          .flatMap(t => [t.start_date, t.end_date]);
-
-        if (dates.length > 0) {
-          const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
-          const maxDate = new Date(Math.max(...dates.map(d => d.getTime())));
-
-          // Add 1 week padding on each side
-          minDate.setDate(minDate.getDate() - 7);
-          maxDate.setDate(maxDate.getDate() + 7);
-
-          gantt.config.start_date = minDate;
-          gantt.config.end_date = maxDate;
-          gantt.render();
-        }
-      }
-    } catch (error) {
-      toast.error('Failed to load tasks');
-    }
-  };
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="gantt-container">
-      <div className="gantt-toolbar" style={{
-        padding: '12px 16px',
-        borderBottom: '1px solid #E4E7EB',
-        display: 'flex',
-        gap: '12px',
-        alignItems: 'center',
-        backgroundColor: '#FAFBFC'
-      }}>
+      <div
+        className="gantt-toolbar"
+        style={{
+          padding: '12px 16px',
+          borderBottom: '1px solid #E4E7EB',
+          display: 'flex',
+          gap: '12px',
+          alignItems: 'center',
+          backgroundColor: '#FAFBFC',
+        }}
+      >
         <button
           onClick={addNewTask}
           className="gantt-btn gantt-btn-primary"
@@ -554,7 +357,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({
             fontWeight: '500',
             display: 'flex',
             alignItems: 'center',
-            gap: '6px'
+            gap: '6px',
           }}
           title="Add new task (Ctrl+Enter)"
         >
@@ -576,9 +379,9 @@ export const GanttChart: React.FC<GanttChartProps> = ({
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            opacity: autoScheduling ? 1 : 0.6
+            opacity: autoScheduling ? 1 : 0.6,
           }}
-          title={autoScheduling ? "Recalculate all dependencies" : "Auto-scheduling is disabled"}
+          title={autoScheduling ? 'Recalculate all dependencies' : 'Auto-scheduling is disabled'}
         >
           <span>🔄</span> Recalculate
         </button>
@@ -588,7 +391,17 @@ export const GanttChart: React.FC<GanttChartProps> = ({
           <span style={{ marginLeft: '12px', color: '#9CA3AF' }}>• Ctrl+Enter to add task</span>
         </div>
       </div>
-      <div ref={ganttContainer} style={{ width: '100%', height: 'calc(100vh - 380px)' }} />
+      <div style={{ width: '100%', height: 'calc(100vh - 380px)' }}>
+        <Gantt
+          tasks={tasks}
+          links={links}
+          columns={columns}
+          scales={scales}
+          init={(api) => {
+            apiRef.current = api;
+          }}
+        />
+      </div>
     </div>
   );
 };

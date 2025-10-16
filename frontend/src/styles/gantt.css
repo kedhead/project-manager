@@ -1,4 +1,4 @@
-/* Woodpecker-style Modern Gantt Chart */
+/* Modern SVAR Gantt Chart Custom Styles */
 
 .gantt-container {
   width: 100%;
@@ -9,352 +9,116 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 
-/* ===== GRID STYLING (LEFT PANEL) ===== */
-
-/* Grid header */
-.gantt_grid_scale {
-  background-color: #FAFBFC !important;
-  border-bottom: 1px solid #E4E7EB !important;
-  height: 50px !important;
+/* Toolbar styling */
+.gantt-toolbar {
+  padding: 12px 16px;
+  border-bottom: 1px solid #E4E7EB;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background-color: #FAFBFC;
 }
 
-.gantt_grid_head_cell {
-  color: #6B7280 !important;
-  font-weight: 500 !important;
-  font-size: 12px !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.025em !important;
-  border-right: 1px solid #E4E7EB !important;
-  padding: 14px 8px !important;
-  line-height: 1.3 !important;
-  vertical-align: middle !important;
-  overflow: visible !important;
+.gantt-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  fontSize: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
 }
 
-/* Grid rows */
-.gantt_grid_data .gantt_row {
-  background-color: #FFFFFF !important;
-  border-bottom: 1px solid #F0F1F3 !important;
+.gantt-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.gantt_grid_data .gantt_row:hover {
-  background-color: #F9FAFB !important;
+.gantt-btn-primary {
+  background-color: #6366F1;
+  color: white;
 }
 
-.gantt_grid_data .gantt_row.gantt_selected {
-  background-color: #EFF6FF !important;
-  border-left: 3px solid #6366F1 !important;
+.gantt-btn-primary:hover {
+  background-color: #4F46E5;
 }
 
-/* Grid cells */
-.gantt_grid_data .gantt_cell {
-  border-right: 1px solid #F0F1F3 !important;
-  padding: 8px !important;
-  font-size: 14px !important;
-  color: #1F2937 !important;
+.gantt-btn-secondary {
+  color: white;
 }
 
-/* Tree column indentation */
-.gantt_tree_content {
-  font-weight: 400 !important;
+.gantt-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
-/* Parent tasks (bold) - multiple selectors to ensure it works */
-.gantt_tree_indent + .gantt_tree_icon + .gantt_tree_content {
-  font-weight: 700 !important;
-}
+/* SVAR Gantt overrides for better appearance */
 
-/* Make all cells in parent task rows bold */
-.gantt_grid_data .gantt_row_project .gantt_cell {
-  font-weight: 700 !important;
-}
-
-.gantt_grid_data .gantt_row_project {
-  font-weight: 700 !important;
-}
-
-/* Target specific task name cell for parent tasks */
-.gantt_cell[data-column-name="text"] .gantt_tree_content {
-  font-weight: 700 !important;
-}
-
-/* Parent task bars - distinct styling (but allow custom colors to override) */
-.gantt_task_row.gantt_task_row_project .gantt_task_line:not([style*="background"]),
-.gantt_task_line.gantt_project:not([style*="background"]) {
-  font-weight: 600 !important;
-  background: linear-gradient(135deg, #1E293B 0%, #334155 100%) !important;
-  border: 2px solid #0F172A !important;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15) !important;
-  height: 36px !important;
-  margin-top: 4px !important;
-}
-
-/* Parent task bar content - white text for visibility */
-.gantt_task_line.gantt_project .gantt_task_content {
-  color: #FFFFFF !important;
-  font-weight: 600 !important;
-}
-
-/* ===== TASK BAR STYLING ===== */
-
-/* Base task bar - rounded corners and modern look */
-.gantt_task_line {
-  border-radius: 20px !important;
-  border: none !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
-  height: 32px !important;
-  margin-top: 6px !important;
-}
-
-/* Hide default progress bar - we'll use solid colors */
-.gantt_task_progress {
-  display: none !important;
-}
-
-/* Colorful task bars - assign colors dynamically */
-.gantt_task_line {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-}
-
-/* Task bar text - white, centered */
-.gantt_task_content {
-  color: #FFFFFF !important;
-  font-weight: 500 !important;
-  font-size: 13px !important;
-  padding: 0 12px !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-
-/* Task labels to the RIGHT of bars */
-.gantt_side_content {
-  color: #1F2937 !important;
-  font-size: 13px !important;
-  font-weight: 500 !important;
-  padding-left: 12px !important;
-}
-
-.gantt_side_content.gantt_right {
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-}
-
-/* ===== TIMELINE STYLING ===== */
-
-/* Timeline header */
-.gantt_task_scale {
-  background-color: #FAFBFC !important;
-  border-bottom: 1px solid #E4E7EB !important;
-}
-
-.gantt_scale_line {
-  border-top: none !important;
-  border-bottom: 1px solid #E4E7EB !important;
-}
-
-.gantt_scale_cell {
-  color: #6B7280 !important;
-  font-weight: 500 !important;
-  font-size: 12px !important;
-  border-right: 1px solid #E4E7EB !important;
-  text-align: center !important;
-}
-
-/* Week headers - bold */
-.gantt_scale_cell.gantt_scale_cell_start {
-  font-weight: 600 !important;
-  color: #374151 !important;
-}
-
-/* Timeline grid */
-.gantt_task_bg {
-  background-color: #FFFFFF !important;
-}
-
-.gantt_task_row {
-  border-bottom: 1px solid #F0F1F3 !important;
-}
-
-.gantt_task_cell {
-  border-right: 1px solid #F9FAFB !important;
-}
-
-/* Today column highlight */
-.gantt_task_cell.gantt_task_cell_today {
-  background-color: #FEF3C7 !important;
-}
-
-/* ===== HIGHLIGHT ROWS (Yellow background like "Design Logo") ===== */
-.gantt_row.gantt_row_task_highlighted {
-  background-color: #FEF9C3 !important;
-}
-
-.gantt_task_row.gantt_task_row_highlighted {
-  background-color: #FEF9C3 !important;
-}
-
-/* ===== SPECIFIC TASK COLOR VARIATIONS ===== */
-
-/* Custom color tasks - let inline styles take precedence */
-.gantt-task-custom-color .gantt_task_line {
-  /* Inline styles will override */
-}
-
-/* Blue */
-.gantt-task-color-blue .gantt_task_line:not([style*="background"]) {
-  background: linear-gradient(135deg, #4F8FF8 0%, #3B6DD6 100%) !important;
-}
-
-/* Yellow */
-.gantt-task-color-yellow .gantt_task_line:not([style*="background"]) {
-  background: linear-gradient(135deg, #FDE047 0%, #FACC15 100%) !important;
-}
-
-.gantt-task-color-yellow .gantt_task_content {
-  color: #1F2937 !important;
-}
-
-/* Purple */
-.gantt-task-color-purple .gantt_task_line:not([style*="background"]) {
-  background: linear-gradient(135deg, #A78BFA 0%, #8B5CF6 100%) !important;
-}
-
-/* Pink */
-.gantt-task-color-pink .gantt_task_line:not([style*="background"]) {
-  background: linear-gradient(135deg, #F472B6 0%, #EC4899 100%) !important;
-}
-
-/* Orange */
-.gantt-task-color-orange .gantt_task_line:not([style*="background"]) {
-  background: linear-gradient(135deg, #FB923C 0%, #F97316 100%) !important;
-}
-
-/* Cyan */
-.gantt-task-color-cyan .gantt_task_line:not([style*="background"]) {
-  background: linear-gradient(135deg, #22D3EE 0%, #06B6D4 100%) !important;
-}
-
-/* Green */
-.gantt-task-color-green .gantt_task_line:not([style*="background"]) {
-  background: linear-gradient(135deg, #4ADE80 0%, #22C55E 100%) !important;
-}
-
-/* ===== DEPENDENCY LINKS ===== */
-
-.gantt_line_wrapper div {
-  background-color: #9CA3AF !important;
-}
-
-.gantt_link_arrow {
-  border-color: #9CA3AF !important;
-}
-
-/* ===== TOOLTIPS ===== */
-
-.gantt_tooltip {
-  background-color: #1F2937 !important;
-  color: #FFFFFF !important;
+/* Make task bars more rounded and modern */
+[data-task-id] {
   border-radius: 8px !important;
-  padding: 12px 16px !important;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2) !important;
-  font-size: 13px !important;
-  border: none !important;
 }
 
-/* ===== DRAG AND DROP ===== */
-
-.gantt_task_drag {
-  cursor: move !important;
+/* Customize task bar colors based on status if needed */
+.wx-gantt .wx-task {
+  transition: all 0.2s ease;
 }
 
-.gantt_link_control {
-  background-color: #6366F1 !important;
-  border: 2px solid #FFFFFF !important;
-  border-radius: 50% !important;
-  width: 12px !important;
-  height: 12px !important;
+.wx-gantt .wx-task:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
 }
 
-.gantt_link_control:hover {
-  background-color: #4F46E5 !important;
-  transform: scale(1.2) !important;
+/* Grid styling */
+.wx-gantt .wx-grid-header {
+  background-color: #FAFBFC;
+  border-bottom: 1px solid #E4E7EB;
 }
 
-/* ===== SCROLLBARS ===== */
+.wx-gantt .wx-grid-cell {
+  border-right: 1px solid #F0F1F3;
+}
 
-.gantt_layout_cell::-webkit-scrollbar {
+/* Timeline styling */
+.wx-gantt .wx-timeline-header {
+  background-color: #FAFBFC;
+  border-bottom: 1px solid #E4E7EB;
+}
+
+/* Scrollbars */
+.wx-gantt::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-.gantt_layout_cell::-webkit-scrollbar-track {
+.wx-gantt::-webkit-scrollbar-track {
   background: #F3F4F6;
   border-radius: 4px;
 }
 
-.gantt_layout_cell::-webkit-scrollbar-thumb {
+.wx-gantt::-webkit-scrollbar-thumb {
   background: #D1D5DB;
   border-radius: 4px;
 }
 
-.gantt_layout_cell::-webkit-scrollbar-thumb:hover {
+.wx-gantt::-webkit-scrollbar-thumb:hover {
   background: #9CA3AF;
 }
 
-/* ===== SELECTION STYLING ===== */
-
-.gantt_task_line.gantt_selected {
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3) !important;
+/* Selected task highlight */
+.wx-gantt .wx-task.wx-selected {
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
 }
 
-.gantt_task_line:hover {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15) !important;
-  transform: translateY(-1px) !important;
-  transition: all 0.2s ease !important;
+/* Dependency links */
+.wx-gantt .wx-link {
+  stroke: #9CA3AF;
+  stroke-width: 2;
 }
 
-/* ===== MODERN FONTS ===== */
-
-.gantt_cal_light {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
-}
-
-/* ===== GRID RESIZER ===== */
-
-.gantt_grid_resize {
-  width: 8px !important;
-  background-color: #D1D5DB !important;
-  cursor: col-resize !important;
-  transition: background-color 0.2s ease !important;
-  z-index: 100 !important;
-  position: relative !important;
-}
-
-.gantt_grid_resize:hover {
-  background-color: #6366F1 !important;
-  width: 10px !important;
-}
-
-/* Force the resizer to be visible and draggable */
-.gantt_layout_cell.grid_cell {
-  border-right: 8px solid #D1D5DB !important;
-  cursor: col-resize !important;
-}
-
-.gantt_layout_cell.grid_cell:hover {
-  border-right-color: #6366F1 !important;
-}
-
-/* ===== RESPONSIVE ===== */
-
-@media (max-width: 768px) {
-  .gantt-container {
-    font-size: 12px;
-  }
-
-  .gantt_task_line {
-    height: 28px !important;
-  }
+.wx-gantt .wx-link-arrow {
+  fill: #9CA3AF;
 }
