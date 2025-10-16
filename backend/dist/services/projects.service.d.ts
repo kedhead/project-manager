@@ -5,6 +5,7 @@ interface Project {
     start_date: Date | null;
     end_date: Date | null;
     status: string;
+    auto_scheduling: boolean;
     created_by: number;
     created_at: Date;
     updated_at: Date;
@@ -22,7 +23,7 @@ interface ProjectWithRole extends Project {
     task_count: number;
 }
 export declare class ProjectsService {
-    static createProject(userId: number, name: string, description?: string | null, startDate?: Date | null, endDate?: Date | null): Promise<ProjectWithRole>;
+    static createProject(userId: number, name: string, description?: string | null, startDate?: Date | null, endDate?: Date | null, autoScheduling?: boolean): Promise<ProjectWithRole>;
     static listProjects(userId: number, filters?: {
         status?: string;
         search?: string;
@@ -34,6 +35,7 @@ export declare class ProjectsService {
         startDate?: Date;
         endDate?: Date;
         status?: string;
+        autoScheduling?: boolean;
     }): Promise<Project>;
     static deleteProject(projectId: number, userId: number): Promise<void>;
     static getProjectMembers(projectId: number, userId: number): Promise<any[]>;

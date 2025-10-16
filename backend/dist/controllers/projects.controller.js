@@ -16,8 +16,8 @@ ProjectsController.createProject = (0, errorHandler_1.asyncHandler)(async (req, 
         throw new errorHandler_1.AppError('Validation error: ' + errors.array().map(e => e.msg).join(', '), 400);
     }
     const userId = req.user.userId;
-    const { name, description, startDate, endDate } = req.body;
-    const project = await projects_service_1.ProjectsService.createProject(userId, name, description, startDate, endDate);
+    const { name, description, startDate, endDate, autoScheduling } = req.body;
+    const project = await projects_service_1.ProjectsService.createProject(userId, name, description, startDate, endDate, autoScheduling);
     res.status(201).json({
         status: 'success',
         data: { project },
@@ -65,13 +65,14 @@ ProjectsController.updateProject = (0, errorHandler_1.asyncHandler)(async (req, 
     if (isNaN(projectId)) {
         throw new errorHandler_1.AppError('Invalid project ID', 400);
     }
-    const { name, description, startDate, endDate, status } = req.body;
+    const { name, description, startDate, endDate, status, autoScheduling } = req.body;
     const project = await projects_service_1.ProjectsService.updateProject(projectId, userId, {
         name,
         description,
         startDate,
         endDate,
         status,
+        autoScheduling,
     });
     res.status(200).json({
         status: 'success',

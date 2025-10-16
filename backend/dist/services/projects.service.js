@@ -5,16 +5,16 @@ const database_1 = require("../config/database");
 const errorHandler_1 = require("../middleware/errorHandler");
 class ProjectsService {
     // Create new project
-    static async createProject(userId, name, description = null, startDate = null, endDate = null) {
+    static async createProject(userId, name, description = null, startDate = null, endDate = null, autoScheduling = false) {
         return (0, database_1.transaction)(async (client) => {
             // Validate dates
             if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
                 throw new errorHandler_1.AppError('Start date cannot be after end date', 400);
             }
             // Create project
-            const projectResult = await client.query(`INSERT INTO projects (name, description, start_date, end_date, created_by)
-         VALUES ($1, $2, $3, $4, $5)
-         RETURNING *`, [name, description, startDate, endDate, userId]);
+            const projectResult = await client.query(`INSERT INTO projects (name, description, start_date, end_date, auto_scheduling, created_by)
+         VALUES ($1, $2, $3, $4, $5, $6)
+         RETURNING *`, [name, description, startDate, endDate, autoScheduling, userId]);
             const project = projectResult.rows[0];
             // Add creator as project owner
             await client.query(`INSERT INTO project_members (project_id, user_id, role)
@@ -122,6 +122,11 @@ class ProjectsService {
             if (updates.status !== undefined) {
                 updateFields.push(`status = $${paramIndex}`);
                 values.push(updates.status);
+                paramIndex++;
+            }
+            if (updates.autoScheduling !== undefined) {
+                updateFields.push(`auto_scheduling = $${paramIndex}`);
+                values.push(updates.autoScheduling);
                 paramIndex++;
             }
             if (updateFields.length === 0) {

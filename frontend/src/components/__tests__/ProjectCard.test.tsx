@@ -11,6 +11,7 @@ const mockProject: Project = {
   start_date: '2025-01-01',
   end_date: '2025-12-31',
   status: 'active',
+  auto_scheduling: false,
   created_by: 1,
   created_at: '2025-01-01T00:00:00Z',
   updated_at: '2025-01-01T00:00:00Z',
