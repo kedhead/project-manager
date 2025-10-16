@@ -30,7 +30,8 @@
       "Bash(git revert:*)",
       "Bash(echo \"Run this on your VPS to verify the backend has the color field:\n\n# Check the backend code in the container\ndocker exec pm_backend grep -A 5 ''interface Task'' /app/dist/services/tasks.service.d.ts | grep color\n\n# If that doesn''t show color, the files weren''t deployed. Run:\ncd ~/project-manager\ndocker cp backend/dist/. pm_backend:/app/dist/\ndocker-compose restart backend\n\n# Wait 5 seconds then check the logs\nsleep 5\ndocker-compose logs --tail=30 backend\")",
       "Bash(echo \"Run this on your VPS to see the actual API response:\n\ndocker-compose logs --tail=100 backend | grep ''SELECT'' -A 20 | grep -i color\")",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

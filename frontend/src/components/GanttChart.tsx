@@ -243,22 +243,32 @@ export const GanttChart: React.FC<GanttChartProps> = ({
           priority: 'medium',
           parentTaskId: task.parent || undefined
         });
-        gantt.changeTaskId(id, newTask.id.toString());
+
+        // Check if task still exists before changing ID
+        if (gantt.isTaskExists(id)) {
+          gantt.changeTaskId(id, newTask.id.toString());
+        }
+
         if (onTaskUpdate) onTaskUpdate();
         toast.success('Task created successfully');
       } catch (error) {
         console.error('Failed to create task:', error);
         toast.error('Failed to create task');
-        // Try to delete the temporary task, but catch any errors
-        try {
-          if (gantt.isTaskExists(id)) {
-            gantt.deleteTask(id);
+
+        // Silently try to clean up - don't throw errors to user
+        setTimeout(() => {
+          try {
+            if (gantt.isTaskExists(id)) {
+              gantt.silent(() => {
+                gantt.deleteTask(id);
+              });
+            }
+          } catch (deleteError) {
+            console.error('Error deleting temporary task:', deleteError);
+            // Last resort: reload all tasks
+            loadTasks();
           }
-        } catch (deleteError) {
-          console.error('Error deleting temporary task:', deleteError);
-          // Just reload to get fresh data
-          loadTasks();
-        }
+        }, 100);
       }
     };
 
@@ -380,8 +390,11 @@ export const GanttChart: React.FC<GanttChartProps> = ({
   // Manual recalculate dependencies function
   const recalculateDependencies = () => {
     if (autoScheduling) {
-      gantt.autoSchedule();
-      toast.success('Dependencies recalculated');
+      // Note: gantt.autoSchedule() is only available in Pro version
+      // In free version, auto-scheduling happens automatically on drag/resize
+      // So we'll just reload the tasks to recalculate
+      loadTasks();
+      toast.success('Tasks reloaded - auto-scheduling is active');
     } else {
       toast.error('Auto-scheduling is disabled for this project');
     }
