@@ -200,12 +200,20 @@ export const GanttChart: React.FC<GanttChartProps> = ({
     // Event handlers
     const onAfterTaskUpdate = async (id: string, task: any) => {
       try {
+        // Check if this is a temporary ID (from gantt.uid()) - skip update if so
+        const taskId = Number(id);
+        if (isNaN(taskId) || taskId > 1000000000000) {
+          // This is a temporary ID, onAfterTaskAdd will handle creation
+          console.log('Skipping update for temporary task ID:', id);
+          return;
+        }
+
         // Ensure progress is an integer 0-100
         const progressValue = typeof task.progress === 'number'
           ? Math.round(Math.max(0, Math.min(1, task.progress)) * 100)
           : 0;
 
-        await tasksApi.update(Number(id), {
+        await tasksApi.update(taskId, {
           title: task.text,
           startDate: gantt.date.date_to_str('%Y-%m-%d')(task.start_date),
           endDate: gantt.date.date_to_str('%Y-%m-%d')(task.end_date),
